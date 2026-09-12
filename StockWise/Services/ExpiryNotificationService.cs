@@ -64,7 +64,7 @@ namespace StockWise.Services
             for (int offset = 0; offset <= daysAhead; offset++)
             {
                 DateOnly date = today.AddDays(offset);
-                List<Stock> dayItems = expiring.Where(x => x.Expiry == date).ToList();
+                List<Stock> dayItems = [.. expiring.Where(x => x.Expiry == date)];
                 if (dayItems.Count == 0)
                 {
                     continue;
