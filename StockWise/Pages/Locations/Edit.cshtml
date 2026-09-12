@@ -1,0 +1,21 @@
+@page "{id:int}"
+@model StockWise.Pages.Locations.EditModel
+@{
+    ViewData["Title"] = "Edit location";
+}
+
+<h1>Edit location</h1>
+
+<form method="post">
+    <input type="hidden" asp-for="Location.LocationId" />
+    <div class="mb-3">
+        <label asp-for="Location.CategoryId" class="form-label">Category</label>
+        <select asp-for="Location.CategoryId" class="form-select" asp-items="Model.CategoryOptions"></select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Location.Name" class="form-label">Name</label>
+        <input asp-for="Location.Name" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-page="Index" class="btn btn-link">Cancel</a>
+</form>

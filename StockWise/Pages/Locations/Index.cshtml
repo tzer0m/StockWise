@@ -1,0 +1,53 @@
+@page
+@model StockWise.Pages.Locations.IndexModel
+@{
+    ViewData["Title"] = "Locations";
+}
+
+<h1>Locations</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (StockWise.Models.Location location in Model.Locations)
+        {
+            <tr>
+                <td>@location.Category?.Name</td>
+                <td>@location.Name</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@location.LocationId">Edit</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@location.LocationId" class="d-inline" onsubmit="return confirm('Delete this location?');">
+                        <button type="submit" class="btn btn-link text-danger p-0 ms-2">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Add location</h2>
+
+<form method="post" asp-page-handler="Add">
+    <div class="mb-3">
+        <label asp-for="NewLocationCategoryId" class="form-label">Category</label>
+        <select asp-for="NewLocationCategoryId" class="form-select" asp-items="Model.CategoryOptions">
+            <option value="">-- Select a category --</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label asp-for="NewLocationName" class="form-label">Name</label>
+        <input asp-for="NewLocationName" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>

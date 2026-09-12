@@ -1,0 +1,47 @@
+@page
+@model StockWise.Pages.Categories.IndexModel
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<h1>Categories</h1>
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Locations</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (StockWise.Models.StorageCategory category in Model.Categories)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td>@category.Locations.Count</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@category.CategoryId">Edit</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@category.CategoryId" class="d-inline" onsubmit="return confirm('Delete this category?');">
+                        <button type="submit" class="btn btn-link text-danger p-0 ms-2">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Add category</h2>
+
+<form method="post" asp-page-handler="Add">
+    <div class="mb-3">
+        <label asp-for="NewCategoryName" class="form-label">Name</label>
+        <input asp-for="NewCategoryName" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>
