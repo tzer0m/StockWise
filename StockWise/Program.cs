@@ -45,5 +45,6 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapStaticAssets();
+app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 app.MapRazorPages().WithStaticAssets();
 app.Run();
