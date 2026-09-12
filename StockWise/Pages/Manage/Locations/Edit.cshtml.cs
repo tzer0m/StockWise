@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using StockWise.Data;
 using StockWise.Models;
 
-namespace StockWise.Pages.Locations
+namespace StockWise.Pages.Manage.Locations
 {
     /// <summary>
     /// Page model for editing a storage location's name and category.

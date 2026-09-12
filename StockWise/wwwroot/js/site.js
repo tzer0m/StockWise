@@ -27,3 +27,24 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+// Disables the "opened" category checkboxes and the expiry-after-opening field unless "Can be opened" is checked.
+document.addEventListener('DOMContentLoaded', function () {
+    var isOpenable = document.getElementById('IsOpenable');
+    if (!isOpenable) {
+        return;
+    }
+
+    var dependents = document.querySelectorAll('.openable-dependent');
+    function syncOpenableDependents() {
+        dependents.forEach(function (element) {
+            element.disabled = !isOpenable.checked;
+            if (element.disabled && element.type === 'checkbox') {
+                element.checked = false;
+            }
+        });
+    }
+
+    isOpenable.addEventListener('change', syncOpenableDependents);
+    syncOpenableDependents();
+});

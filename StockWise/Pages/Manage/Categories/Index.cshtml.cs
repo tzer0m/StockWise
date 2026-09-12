@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Models;
 
-namespace StockWise.Pages.Categories
+namespace StockWise.Pages.Manage.Categories
 {
     /// <summary>
     /// Page model for listing, adding, and deleting storage categories.

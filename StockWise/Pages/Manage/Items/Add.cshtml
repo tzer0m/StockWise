@@ -1,0 +1,57 @@
+@page
+@model StockWise.Pages.Manage.Items.AddModel
+@{
+    ViewData["Title"] = "Add item";
+}
+
+<h1>Add item</h1>
+
+<form method="post">
+    <div class="mb-3">
+        <label asp-for="Barcode" class="form-label">Barcode</label>
+        <input asp-for="Barcode" class="form-control" autofocus />
+    </div>
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="ImageUrl" class="form-label">Image URL</label>
+        <input asp-for="ImageUrl" class="form-control" />
+    </div>
+    <div class="mb-3 form-check">
+        <input asp-for="IsOpenable" class="form-check-input" />
+        <label asp-for="IsOpenable" class="form-check-label">Can be opened</label>
+    </div>
+    <div class="mb-3">
+        <label asp-for="ExpiryAfterOpeningDays" class="form-label">Expiry after opening (days)</label>
+        <input asp-for="ExpiryAfterOpeningDays" class="form-control openable-dependent" type="number" min="0" />
+    </div>
+
+    <h2>Allowed categories</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Unopened</th>
+                <th>Opened</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.CategoryAllowances.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model.CategoryAllowances[i].CategoryName
+                        <input type="hidden" asp-for="CategoryAllowances[i].CategoryId" />
+                        <input type="hidden" asp-for="CategoryAllowances[i].CategoryName" />
+                    </td>
+                    <td><input asp-for="CategoryAllowances[i].AllowedWhenUnopened" /></td>
+                    <td><input asp-for="CategoryAllowances[i].AllowedWhenOpened" class="openable-dependent" /></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Add item</button>
+</form>

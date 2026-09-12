@@ -1,4 +1,4 @@
-namespace StockWise.Pages.Items
+namespace StockWise.Pages.Manage.Items
 {
     /// <summary>
     /// Whether a storage category is allowed for an item, unopened and/or opened.

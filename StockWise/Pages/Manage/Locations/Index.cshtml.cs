@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Models;
 
-namespace StockWise.Pages.Locations
+namespace StockWise.Pages.Manage.Locations
 {
     /// <summary>
     /// Page model for listing, adding, and deleting storage locations.

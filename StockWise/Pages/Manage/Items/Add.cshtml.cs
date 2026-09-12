@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Models;
 
-namespace StockWise.Pages.Items
+namespace StockWise.Pages.Manage.Items
 {
     /// <summary>
     /// Page model for adding a new trackable item.
@@ -37,6 +37,12 @@ namespace StockWise.Pages.Items
         public bool IsOpenable { get; set; }
 
         /// <summary>
+        /// How many days after opening this item expires, used to default the expiry date when it's opened.
+        /// </summary>
+        [BindProperty]
+        public int? ExpiryAfterOpeningDays { get; set; }
+
+        /// <summary>
         /// The category allowances the user has chosen for this item.
         /// </summary>
         [BindProperty]
@@ -62,10 +68,10 @@ namespace StockWise.Pages.Items
                 return Page();
             }
 
-            Item item = new() { Barcode = Barcode.Trim(), Name = Name.Trim(), ImageUrl = ImageUrl, IsOpenable = IsOpenable, CreatedAt = DateTime.UtcNow };
-            foreach (CategoryAllowance allowance in CategoryAllowances.Where(x => x.AllowedWhenUnopened || x.AllowedWhenOpened))
+            Item item = new() { Barcode = Barcode.Trim(), Name = Name.Trim(), ImageUrl = ImageUrl, IsOpenable = IsOpenable, ExpiryAfterOpeningDays = IsOpenable ? ExpiryAfterOpeningDays : null, CreatedAt = DateTime.UtcNow };
+            foreach (CategoryAllowance allowance in CategoryAllowances.Where(x => x.AllowedWhenUnopened || (IsOpenable && x.AllowedWhenOpened)))
             {
-                item.ItemStorageCategories.Add(new ItemStorageCategory { CategoryId = allowance.CategoryId, AllowedWhenUnopened = allowance.AllowedWhenUnopened, AllowedWhenOpened = allowance.AllowedWhenOpened });
+                item.ItemStorageCategories.Add(new ItemStorageCategory { CategoryId = allowance.CategoryId, AllowedWhenUnopened = allowance.AllowedWhenUnopened, AllowedWhenOpened = IsOpenable && allowance.AllowedWhenOpened });
             }
 
             db.Items.Add(item);
