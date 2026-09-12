@@ -79,7 +79,7 @@ namespace StockWise.Pages.Items
         private async Task LoadCategoryAllowancesAsync()
         {
             List<StorageCategory> categories = await db.StorageCategories.OrderBy(x => x.Name).ToListAsync();
-            CategoryAllowances = categories.Select(x => new CategoryAllowance { CategoryId = x.CategoryId, CategoryName = x.Name }).ToList();
+            CategoryAllowances = [.. categories.Select(x => new CategoryAllowance { CategoryId = x.CategoryId, CategoryName = x.Name })];
         }
     }
 }

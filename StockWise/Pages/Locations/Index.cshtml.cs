@@ -93,7 +93,7 @@ namespace StockWise.Pages.Locations
         {
             Locations = await db.Locations.Include(x => x.Category).OrderBy(x => x.Category!.Name).ThenBy(x => x.Name).ToListAsync();
             List<StorageCategory> categories = await db.StorageCategories.OrderBy(x => x.Name).ToListAsync();
-            CategoryOptions = categories.Select(x => new SelectListItem(x.Name, x.CategoryId.ToString())).ToList();
+            CategoryOptions = [.. categories.Select(x => new SelectListItem(x.Name, x.CategoryId.ToString()))];
         }
     }
 }

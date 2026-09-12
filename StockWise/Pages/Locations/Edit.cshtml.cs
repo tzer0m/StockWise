@@ -66,7 +66,7 @@ namespace StockWise.Pages.Locations
         private async Task LoadCategoryOptionsAsync()
         {
             List<StorageCategory> categories = await db.StorageCategories.OrderBy(x => x.Name).ToListAsync();
-            CategoryOptions = categories.Select(x => new SelectListItem(x.Name, x.CategoryId.ToString())).ToList();
+            CategoryOptions = [.. categories.Select(x => new SelectListItem(x.Name, x.CategoryId.ToString()))];
         }
     }
 }

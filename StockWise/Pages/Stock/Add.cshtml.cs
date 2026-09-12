@@ -98,9 +98,9 @@ namespace StockWise.Pages.Stock
                 return;
             }
 
-            List<int> allowedCategoryIds = Item.ItemStorageCategories.Where(x => x.AllowedWhenUnopened).Select(x => x.CategoryId).ToList();
+            List<int> allowedCategoryIds = [.. Item.ItemStorageCategories.Where(x => x.AllowedWhenUnopened).Select(x => x.CategoryId)];
             List<Location> locations = await db.Locations.Include(x => x.Category).Where(x => allowedCategoryIds.Contains(x.CategoryId)).OrderBy(x => x.Category!.Name).ThenBy(x => x.Name).ToListAsync();
-            LocationOptions = locations.Select(x => new SelectListItem($"{x.Category!.Name} - {x.Name}", x.LocationId.ToString())).ToList();
+            LocationOptions = [.. locations.Select(x => new SelectListItem($"{x.Category!.Name} - {x.Name}", x.LocationId.ToString()))];
         }
     }
 }
