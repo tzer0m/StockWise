@@ -16,6 +16,11 @@ namespace StockWise.Models
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
+        /// The hex colour used to highlight this category's stock rows on the home page.
+        /// </summary>
+        public string? Color { get; set; }
+
+        /// <summary>
         /// The locations that belong to this category.
         /// </summary>
         public List<Location> Locations { get; set; } = [];

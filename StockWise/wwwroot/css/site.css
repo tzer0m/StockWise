@@ -160,3 +160,8 @@ a.navbar-brand {
     --bs-alert-bg: #4d1a22;
     --bs-alert-border-color: #6b222c;
 }
+
+.category-row {
+    background-color: color-mix(in srgb, var(--cat-color) 28%, var(--sw-surface));
+    border-left: 3px solid var(--cat-color);
+}

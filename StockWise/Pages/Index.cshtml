@@ -4,8 +4,11 @@
     ViewData["Title"] = "Home";
 }
 
+<h1 class="mb-3">StockWise</h1>
+
 <form method="get" class="mb-4">
     <div class="mb-3">
+        <label asp-for="Barcode" class="form-label">Scan or enter a barcode</label>
         <input asp-for="Barcode" class="form-control" autofocus autocomplete="off" />
     </div>
 </form>
@@ -80,6 +83,8 @@
     }
 }
 
+<h2>Stock</h2>
+
 @if (Model.AllStock.Count == 0)
 {
     <p>No stock currently held.</p>
@@ -90,7 +95,6 @@ else
         <thead>
             <tr>
                 <th>Item</th>
-                <th>Category</th>
                 <th>Location</th>
                 <th>Quantity</th>
                 <th>Expiry</th>
@@ -101,9 +105,8 @@ else
         <tbody>
             @foreach (StockWise.Models.Stock stock in Model.AllStock)
             {
-                <tr>
+                <tr class="category-row" style="--cat-color: @(stock.Location?.Category?.Color ?? "#6c757d");">
                     <td>@stock.Item?.Name</td>
-                    <td>@stock.Location?.Category?.Name</td>
                     <td>@stock.Location?.Name</td>
                     <td>@stock.Quantity</td>
                     <td>@stock.Expiry</td>

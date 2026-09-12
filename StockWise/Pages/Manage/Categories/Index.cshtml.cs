@@ -24,6 +24,12 @@ namespace StockWise.Pages.Manage.Categories
         public string NewCategoryName { get; set; } = string.Empty;
 
         /// <summary>
+        /// The highlight colour for a new category being added.
+        /// </summary>
+        [BindProperty]
+        public string NewCategoryColor { get; set; } = "#6c757d";
+
+        /// <summary>
         /// An error message to show, if the last action failed.
         /// </summary>
         [TempData]
@@ -44,7 +50,7 @@ namespace StockWise.Pages.Manage.Categories
         {
             if (!string.IsNullOrWhiteSpace(NewCategoryName))
             {
-                db.StorageCategories.Add(new StorageCategory { Name = NewCategoryName.Trim() });
+                db.StorageCategories.Add(new StorageCategory { Name = NewCategoryName.Trim(), Color = NewCategoryColor });
                 await db.SaveChangesAsync();
             }
 

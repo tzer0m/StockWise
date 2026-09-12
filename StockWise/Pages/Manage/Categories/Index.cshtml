@@ -14,6 +14,7 @@
 <table class="table">
     <thead>
         <tr>
+            <th>Colour</th>
             <th>Name</th>
             <th>Locations</th>
             <th></th>
@@ -23,6 +24,7 @@
         @foreach (StockWise.Models.StorageCategory category in Model.Categories)
         {
             <tr>
+                <td><span class="d-inline-block rounded" style="width:1.5rem;height:1.5rem;background-color:@(category.Color ?? "#6c757d");"></span></td>
                 <td>@category.Name</td>
                 <td>@category.Locations.Count</td>
                 <td>
@@ -42,6 +44,10 @@
     <div class="mb-3">
         <label asp-for="NewCategoryName" class="form-label">Name</label>
         <input asp-for="NewCategoryName" class="form-control" autocapitalize="words" />
+    </div>
+    <div class="mb-3">
+        <label asp-for="NewCategoryColor" class="form-label">Colour</label>
+        <input asp-for="NewCategoryColor" type="color" class="form-control form-control-color" />
     </div>
     <button type="submit" class="btn btn-primary">Add</button>
 </form>

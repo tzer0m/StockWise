@@ -43,7 +43,9 @@ namespace StockWise.Pages.Manage.Categories
                 return Page();
             }
 
-            db.Attach(Category).Property(x => x.Name).IsModified = true;
+            db.Attach(Category);
+            db.Entry(Category).Property(x => x.Name).IsModified = true;
+            db.Entry(Category).Property(x => x.Color).IsModified = true;
             await db.SaveChangesAsync();
             return RedirectToPage("Index");
         }
