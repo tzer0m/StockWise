@@ -2,11 +2,14 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
+using StockWise.Services;
 
 // Create web application builder.
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages(options => options.Conventions.AuthorizeFolder("/").AllowAnonymousToPage("/Error"));
 builder.Services.AddDbContext<StockWiseDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("StockWiseDb")));
+builder.Services.AddTingClient(builder.Configuration);
+builder.Services.AddHostedService<ExpiryNotificationService>();
 
 // Configure authentication against the homelab's OIDC provider (Pocket ID).
 builder.Services.AddAuthentication(options =>
