@@ -45,6 +45,12 @@ namespace StockWise.Pages.Stock
                 return NotFound();
             }
 
+            LocationId = Stock!.LocationId;
+            if (Stock.Item?.ExpiryAfterOpeningDays is int expiryAfterOpeningDays)
+            {
+                Expiry = DateOnly.FromDateTime(DateTime.Today).AddDays(expiryAfterOpeningDays);
+            }
+
             return Page();
         }
 
@@ -87,7 +93,7 @@ namespace StockWise.Pages.Stock
                 return false;
             }
 
-            List<int> allowedCategoryIds = Stock.Item!.ItemStorageCategories.Where(x => x.AllowedWhenOpened).Select(x => x.CategoryId).ToList();
+            List<int> allowedCategoryIds = [.. Stock.Item!.ItemStorageCategories.Where(x => x.AllowedWhenOpened).Select(x => x.CategoryId)];
             AllowedLocations = await db.Locations.Include(x => x.Category).Where(x => allowedCategoryIds.Contains(x.CategoryId)).OrderBy(x => x.Category!.Name).ThenBy(x => x.Name).ToListAsync();
             return true;
         }
