@@ -10,7 +10,7 @@
     <input type="hidden" asp-for="Category.CategoryId" />
     <div class="mb-3">
         <label asp-for="Category.Name" class="form-label">Name</label>
-        <input asp-for="Category.Name" class="form-control" />
+        <input asp-for="Category.Name" class="form-control" autocapitalize="words" />
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
     <a asp-page="Index" class="btn btn-link">Cancel</a>
