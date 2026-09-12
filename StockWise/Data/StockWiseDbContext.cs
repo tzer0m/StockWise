@@ -45,6 +45,23 @@ namespace StockWise.Data
 
             // ItemStorageCategories has a composite primary key rather than a single Id column.
             modelBuilder.Entity<ItemStorageCategory>().HasKey(x => new { x.ItemId, x.CategoryId });
+
+            // Add default storage categories.
+            modelBuilder.Entity<StorageCategory>().HasData(
+                new StorageCategory { CategoryId = 1, Name = "Fridge" },
+                new StorageCategory { CategoryId = 2, Name = "Freezer" },
+                new StorageCategory { CategoryId = 3, Name = "Pantry" });
+
+            // Add default storage locations.
+            modelBuilder.Entity<Location>().HasData(
+                new Location { LocationId = 1, CategoryId = 1, Name = "Fridge Door" },
+                new Location { LocationId = 2, CategoryId = 1, Name = "Fridge Shelves" },
+                new Location { LocationId = 3, CategoryId = 2, Name = "Inside Freezer" },
+                new Location { LocationId = 4, CategoryId = 2, Name = "Outside Freezer" },
+                new Location { LocationId = 5, CategoryId = 3, Name = "Drawers" },
+                new Location { LocationId = 6, CategoryId = 3, Name = "Cereal Cupboard" },
+                new Location { LocationId = 7, CategoryId = 3, Name = "Cupboard L" },
+                new Location { LocationId = 8, CategoryId = 3, Name = "Cupboard R" });
         }
     }
 }
