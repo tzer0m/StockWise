@@ -132,17 +132,17 @@ namespace StockWise.Pages
 
             if (daysUntilExpiry <= 0)
             {
-                return "expiry-badge expiry-red";
+                return "tile tile-red";
             }
 
             if (daysUntilExpiry < 3)
             {
-                return "expiry-badge expiry-orange";
+                return "tile tile-orange";
             }
 
             if (daysUntilExpiry < 7)
             {
-                return "expiry-badge expiry-green";
+                return "tile tile-green";
             }
 
             return null;

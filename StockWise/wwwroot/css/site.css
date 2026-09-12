@@ -166,7 +166,7 @@ a.navbar-brand {
     border-left: 3px solid var(--cat-color);
 }
 
-.expiry-badge {
+.tile {
     display: inline-block;
     padding: .15rem .5rem;
     border-radius: .25rem;
@@ -175,17 +175,149 @@ a.navbar-brand {
     white-space: nowrap;
 }
 
-.expiry-red {
+.tile-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    padding: 0;
+}
+
+.icon {
+    width: 14px;
+    height: 14px;
+    fill: currentColor;
+    vertical-align: -2px;
+    flex-shrink: 0;
+}
+
+.btn-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    border-radius: .25rem;
+    background-color: var(--sw-surface-raised);
+    border: 1px solid var(--sw-border);
+    color: var(--sw-text);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+button.btn-icon {
+    font: inherit;
+}
+
+.btn-icon:hover, .btn-icon:focus {
+    background-color: var(--sw-red);
+    border-color: var(--sw-red);
+    color: #fff;
+}
+
+.btn-icon .icon {
+    margin-right: 0;
+}
+
+.btn .icon {
+    margin-right: .3rem;
+}
+
+.tile-red {
     background-color: #dc3545;
     color: #fff;
 }
 
-.expiry-orange {
+.tile-orange {
     background-color: #f5a524;
     color: #1c1b1a;
 }
 
-.expiry-green {
+.tile-green {
     background-color: #43a047;
     color: #1c1b1a;
+}
+
+@media (max-width: 767.98px) {
+    .table-cards, .table-cards tbody, .table-cards tbody tr, .table-cards tbody td {
+        display: block;
+        width: 100%;
+    }
+
+    .table-cards thead {
+        display: block;
+    }
+
+    .table-cards thead tr {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .35rem;
+        margin-bottom: .75rem;
+        border: none;
+    }
+
+    .table-cards thead th {
+        display: inline-block;
+        width: auto;
+        padding: .25rem .5rem;
+        background-color: var(--sw-surface-raised);
+        border: none;
+        border-radius: .25rem;
+        font-size: .8rem;
+        white-space: nowrap;
+    }
+
+    .table-cards thead th:empty {
+        display: none;
+    }
+
+    .table-cards tbody tr {
+        margin-bottom: .75rem;
+        border-top: 1px solid var(--sw-border);
+        border-right: 1px solid var(--sw-border);
+        border-bottom: 1px solid var(--sw-border);
+        border-left: 1px solid var(--sw-border);
+        border-radius: .375rem;
+        padding: .6rem .75rem;
+    }
+
+    .table-cards tbody tr.category-row {
+        border-left: 3px solid var(--cat-color);
+    }
+
+    .table-cards tbody td {
+        border: none;
+        padding: .2rem 0;
+    }
+
+    .table-cards tbody td[data-label] {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: .75rem;
+        text-align: right;
+    }
+
+    .table-cards tbody td[data-label]::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--sw-muted);
+        text-align: left;
+    }
+
+    .table-cards tbody td.cell-heading {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: #fff;
+        padding-bottom: .35rem;
+    }
+
+    .table-cards tbody td.action-cell {
+        display: inline-block;
+        width: auto;
+        margin-top: .4rem;
+        padding: 0 .4rem .4rem 0;
+    }
 }
