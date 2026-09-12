@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
@@ -27,7 +26,7 @@ namespace StockWise.Pages.Stock
         /// <summary>
         /// The locations allowed for this item while unopened.
         /// </summary>
-        public List<SelectListItem> LocationOptions { get; set; } = [];
+        public List<Location> AllowedLocations { get; set; } = [];
 
         /// <summary>
         /// The location to add stock at.
@@ -98,9 +97,8 @@ namespace StockWise.Pages.Stock
                 return;
             }
 
-            List<int> allowedCategoryIds = [.. Item.ItemStorageCategories.Where(x => x.AllowedWhenUnopened).Select(x => x.CategoryId)];
-            List<Location> locations = await db.Locations.Include(x => x.Category).Where(x => allowedCategoryIds.Contains(x.CategoryId)).OrderBy(x => x.Category!.Name).ThenBy(x => x.Name).ToListAsync();
-            LocationOptions = [.. locations.Select(x => new SelectListItem($"{x.Category!.Name} - {x.Name}", x.LocationId.ToString()))];
+            List<int> allowedCategoryIds = Item.ItemStorageCategories.Where(x => x.AllowedWhenUnopened).Select(x => x.CategoryId).ToList();
+            AllowedLocations = await db.Locations.Include(x => x.Category).Where(x => allowedCategoryIds.Contains(x.CategoryId)).OrderBy(x => x.Category!.Name).ThenBy(x => x.Name).ToListAsync();
         }
     }
 }

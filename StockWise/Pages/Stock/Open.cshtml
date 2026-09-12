@@ -9,8 +9,12 @@
 <form method="post">
     <div class="mb-3">
         <label asp-for="LocationId" class="form-label">New location</label>
-        <select asp-for="LocationId" class="form-select" asp-items="Model.LocationOptions">
+        <select asp-for="LocationId" class="form-select" data-expiry-target="Expiry">
             <option value="">-- Select a location --</option>
+            @foreach (StockWise.Models.Location location in Model.AllowedLocations)
+            {
+                <option value="@location.LocationId" data-category="@location.Category?.Name">@location.Category?.Name - @location.Name</option>
+            }
         </select>
     </div>
     <div class="mb-3">
