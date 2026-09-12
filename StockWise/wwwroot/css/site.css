@@ -165,3 +165,27 @@ a.navbar-brand {
     background-color: color-mix(in srgb, var(--cat-color) 28%, var(--sw-surface));
     border-left: 3px solid var(--cat-color);
 }
+
+.expiry-badge {
+    display: inline-block;
+    padding: .15rem .5rem;
+    border-radius: .25rem;
+    font-weight: 600;
+    font-size: .85em;
+    white-space: nowrap;
+}
+
+.expiry-red {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.expiry-orange {
+    background-color: #f5a524;
+    color: #1c1b1a;
+}
+
+.expiry-green {
+    background-color: #43a047;
+    color: #1c1b1a;
+}

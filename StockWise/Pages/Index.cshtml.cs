@@ -111,6 +111,68 @@ namespace StockWise.Pages
         }
 
         /// <summary>
+        /// Calculates the number of days from today until the given expiry date.
+        /// </summary>
+        /// <param name="expiry">The expiry date.</param>
+        public static int? GetDaysUntilExpiry(DateOnly? expiry)
+        {
+            return expiry?.DayNumber - DateOnly.FromDateTime(DateTime.Today).DayNumber;
+        }
+
+        /// <summary>
+        /// Returns the CSS class for the expiry badge, or null if the row doesn't need highlighting.
+        /// </summary>
+        /// <param name="daysUntilExpiry">The number of days until expiry.</param>
+        public static string? GetExpiryBadgeClass(int? daysUntilExpiry)
+        {
+            if (daysUntilExpiry is null)
+            {
+                return null;
+            }
+
+            if (daysUntilExpiry <= 0)
+            {
+                return "expiry-badge expiry-red";
+            }
+
+            if (daysUntilExpiry < 3)
+            {
+                return "expiry-badge expiry-orange";
+            }
+
+            if (daysUntilExpiry < 7)
+            {
+                return "expiry-badge expiry-green";
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Formats the number of days until expiry as a short display string.
+        /// </summary>
+        /// <param name="daysUntilExpiry">The number of days until expiry.</param>
+        public static string FormatDaysUntilExpiry(int? daysUntilExpiry)
+        {
+            if (daysUntilExpiry is null)
+            {
+                return "—";
+            }
+
+            if (daysUntilExpiry == 0)
+            {
+                return "Today";
+            }
+
+            if (daysUntilExpiry < 0)
+            {
+                return $"{-daysUntilExpiry}d overdue";
+            }
+
+            return $"{daysUntilExpiry}d";
+        }
+
+        /// <summary>
         /// Looks up the item for the scanned barcode and its current stock rows, if any.
         /// </summary>
         private async Task LoadScannedItemAsync()

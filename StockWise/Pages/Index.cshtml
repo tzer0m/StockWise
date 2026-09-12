@@ -104,7 +104,20 @@ else
                     <td>@stock.Item?.Name</td>
                     <td>@stock.Location?.Name</td>
                     <td>@stock.Quantity</td>
-                    <td>@stock.Expiry</td>
+                    <td>
+                        @{
+                            int? daysUntilExpiry = IndexModel.GetDaysUntilExpiry(stock.Expiry);
+                            string? expiryBadgeClass = IndexModel.GetExpiryBadgeClass(daysUntilExpiry);
+                        }
+                        @if (expiryBadgeClass is not null)
+                        {
+                            <span class="@expiryBadgeClass">@IndexModel.FormatDaysUntilExpiry(daysUntilExpiry)</span>
+                        }
+                        else
+                        {
+                            @IndexModel.FormatDaysUntilExpiry(daysUntilExpiry)
+                        }
+                    </td>
                     <td>@(stock.OpenedAt is not null ? "Yes" : "No")</td>
                     <td>
                         <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" class="d-inline">
