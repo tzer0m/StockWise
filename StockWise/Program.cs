@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Services;
+using t0m.Ting;
 
 // Create web application builder.
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
