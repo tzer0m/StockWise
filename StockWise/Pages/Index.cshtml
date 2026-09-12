@@ -4,13 +4,84 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h1>StockWise</h1>
-    <div>
-        <a asp-page="/Stock/Add" class="btn btn-primary">Add stock</a>
-        <a asp-page="/Stock/Checkout" class="btn btn-outline-primary">Checkout</a>
+<h1 class="mb-3">StockWise</h1>
+
+<form method="get" class="mb-4">
+    <div class="mb-3">
+        <label asp-for="Barcode" class="form-label">Scan or enter a barcode</label>
+        <input asp-for="Barcode" class="form-control" autofocus autocomplete="off" />
     </div>
-</div>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.Barcode))
+{
+    @if (Model.ScannedItem is null)
+    {
+        <div class="alert alert-warning">
+            No item found for barcode "@Model.Barcode".
+            <a asp-page="/Manage/Items/Add" asp-route-barcode="@Model.Barcode">Add new item</a>
+        </div>
+    }
+    else
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h4 mb-0">@Model.ScannedItem.Name</h2>
+                    <div>
+                        <a asp-page="/Stock/Add" asp-route-barcode="@Model.Barcode" class="btn btn-primary btn-sm">Add stock</a>
+                        <a asp-page="/Manage/Items/Edit" asp-route-id="@Model.ScannedItem.ItemId" class="btn btn-outline-secondary btn-sm">Edit item</a>
+                    </div>
+                </div>
+
+                @if (Model.ScannedItemStock.Count == 0)
+                {
+                    <p class="mb-0">No stock currently held for this item.</p>
+                }
+                else
+                {
+                    <table class="table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Location</th>
+                                <th>Quantity</th>
+                                <th>Expiry</th>
+                                <th>Opened</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (StockWise.Models.Stock stock in Model.ScannedItemStock)
+                            {
+                                <tr>
+                                    <td>@stock.Location?.Name</td>
+                                    <td>@stock.Quantity</td>
+                                    <td>@stock.Expiry</td>
+                                    <td>@(stock.OpenedAt is not null ? "Yes" : "No")</td>
+                                    <td>
+                                        <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" asp-route-barcode="@Model.Barcode" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm">Checkout 1</button>
+                                        </form>
+                                        @if (Model.ScannedItem.IsOpenable && stock.OpenedAt is null)
+                                        {
+                                            <a asp-page="/Stock/Open" asp-route-id="@stock.StockId" class="btn btn-outline-secondary btn-sm">Open</a>
+                                        }
+                                        @if (stock.OpenedAt is not null)
+                                        {
+                                            <form method="post" asp-page-handler="Finish" asp-route-stockId="@stock.StockId" asp-route-barcode="@Model.Barcode" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-secondary btn-sm">Finish</button>
+                                            </form>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+}
 
 @foreach (StockWise.Models.StorageCategory category in Model.Categories)
 {
