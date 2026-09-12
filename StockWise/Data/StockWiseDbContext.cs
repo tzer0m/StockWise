@@ -40,6 +40,9 @@ namespace StockWise.Data
         /// <param name="modelBuilder">The model builder.</param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // StorageCategory's key is CategoryId, not the StorageCategoryId the key convention looks for.
+            modelBuilder.Entity<StorageCategory>().HasKey(x => x.CategoryId);
+
             // ItemStorageCategories has a composite primary key rather than a single Id column.
             modelBuilder.Entity<ItemStorageCategory>().HasKey(x => new { x.ItemId, x.CategoryId });
         }
