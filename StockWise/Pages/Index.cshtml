@@ -4,11 +4,8 @@
     ViewData["Title"] = "Home";
 }
 
-<h1 class="mb-3">StockWise</h1>
-
 <form method="get" class="mb-4">
     <div class="mb-3">
-        <label asp-for="Barcode" class="form-label">Scan or enter a barcode</label>
         <input asp-for="Barcode" class="form-control" autofocus autocomplete="off" />
     </div>
 </form>
@@ -82,8 +79,6 @@
         </div>
     }
 }
-
-<h2>Stock</h2>
 
 @if (Model.AllStock.Count == 0)
 {
