@@ -1,0 +1,64 @@
+@page
+@model StockWise.Pages.Stock.CheckoutModel
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<h1>Checkout</h1>
+
+@if (Model.Message is not null)
+{
+    <div class="alert alert-success">@Model.Message</div>
+}
+
+<form method="get">
+    <div class="mb-3">
+        <label asp-for="Barcode" class="form-label">Barcode</label>
+        <input asp-for="Barcode" class="form-control" autofocus autocomplete="off" />
+    </div>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.Barcode) && Model.Item is null)
+{
+    <div class="alert alert-warning">No item found for barcode "@Model.Barcode".</div>
+}
+
+@if (Model.Item is not null)
+{
+    <h2>@Model.Item.Name</h2>
+
+    @if (Model.StockRows.Count == 0)
+    {
+        <p>No stock held for this item.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Location</th>
+                    <th>Quantity</th>
+                    <th>Expiry</th>
+                    <th>Opened</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (StockWise.Models.Stock stock in Model.StockRows)
+                {
+                    <tr>
+                        <td>@stock.Location?.Name</td>
+                        <td>@stock.Quantity</td>
+                        <td>@stock.Expiry</td>
+                        <td>@(stock.OpenedAt is not null ? "Yes" : "No")</td>
+                        <td>
+                            <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" class="d-inline">
+                                <button type="submit" class="btn btn-primary btn-sm">Checkout 1</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}

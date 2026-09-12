@@ -4,6 +4,60 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">StockWise</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>StockWise</h1>
+    <div>
+        <a asp-page="/Stock/Add" class="btn btn-primary">Add stock</a>
+        <a asp-page="/Stock/Checkout" class="btn btn-outline-primary">Checkout</a>
+    </div>
 </div>
+
+@foreach (StockWise.Models.StorageCategory category in Model.Categories)
+{
+    <h2>@category.Name</h2>
+
+    @foreach (StockWise.Models.Location location in category.Locations)
+    {
+        @if (location.Stock.Count > 0)
+        {
+            <h3 class="h5">@location.Name</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantity</th>
+                        <th>Expiry</th>
+                        <th>Opened</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (StockWise.Models.Stock stock in location.Stock)
+                    {
+                        <tr>
+                            <td>@stock.Item?.Name</td>
+                            <td>@stock.Quantity</td>
+                            <td>@stock.Expiry</td>
+                            <td>@(stock.OpenedAt is not null ? "Yes" : "No")</td>
+                            <td>
+                                <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" class="d-inline">
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Checkout 1</button>
+                                </form>
+                                @if (stock.Item is not null && stock.Item.IsOpenable && stock.OpenedAt is null)
+                                {
+                                    <a asp-page="/Stock/Open" asp-route-id="@stock.StockId" class="btn btn-outline-secondary btn-sm">Open</a>
+                                }
+                                @if (stock.OpenedAt is not null)
+                                {
+                                    <form method="post" asp-page-handler="Finish" asp-route-stockId="@stock.StockId" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">Finish</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+}

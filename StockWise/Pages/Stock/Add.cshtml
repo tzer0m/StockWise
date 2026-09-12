@@ -1,0 +1,51 @@
+@page
+@model StockWise.Pages.Stock.AddModel
+@{
+    ViewData["Title"] = "Add stock";
+}
+
+<h1>Add stock</h1>
+
+@if (Model.Message is not null)
+{
+    <div class="alert alert-success">@Model.Message</div>
+}
+
+<form method="get">
+    <div class="mb-3">
+        <label asp-for="Barcode" class="form-label">Barcode</label>
+        <input asp-for="Barcode" class="form-control" autofocus autocomplete="off" />
+    </div>
+</form>
+
+@if (!string.IsNullOrWhiteSpace(Model.Barcode) && Model.Item is null)
+{
+    <div class="alert alert-warning">
+        No item found for barcode "@Model.Barcode".
+        <a asp-page="/Items/Add" asp-route-barcode="@Model.Barcode">Add it</a>
+    </div>
+}
+
+@if (Model.Item is not null)
+{
+    <h2>@Model.Item.Name</h2>
+
+    <form method="post" asp-page-handler="AddStock">
+        <input type="hidden" name="itemId" value="@Model.Item.ItemId" />
+        <div class="mb-3">
+            <label asp-for="LocationId" class="form-label">Location</label>
+            <select asp-for="LocationId" class="form-select" asp-items="Model.LocationOptions">
+                <option value="">-- Select a location --</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Quantity" class="form-label">Quantity</label>
+            <input asp-for="Quantity" class="form-control" type="number" min="1" />
+        </div>
+        <div class="mb-3">
+            <label asp-for="Expiry" class="form-label">Expiry</label>
+            <input asp-for="Expiry" class="form-control" type="date" />
+        </div>
+        <button type="submit" class="btn btn-primary">Add stock</button>
+    </form>
+}
