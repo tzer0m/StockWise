@@ -169,7 +169,25 @@ namespace StockWise.Pages
                 return $"{-daysUntilExpiry}d overdue";
             }
 
-            return $"{daysUntilExpiry}d";
+            if (daysUntilExpiry <= 6)
+            {
+                return $"{daysUntilExpiry}d";
+            }
+
+            int weeks = (int)Math.Round(daysUntilExpiry.Value / 7.0);
+            if (weeks <= 4)
+            {
+                return $"{weeks}w";
+            }
+
+            int months = (int)Math.Round(daysUntilExpiry.Value / 30.44);
+            if (months <= 12)
+            {
+                return $"{months}mo";
+            }
+
+            int years = (int)Math.Round(daysUntilExpiry.Value / 365.25);
+            return $"{years}y";
         }
 
         /// <summary>
