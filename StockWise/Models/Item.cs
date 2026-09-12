@@ -31,6 +31,11 @@ namespace StockWise.Models
         public bool IsOpenable { get; set; }
 
         /// <summary>
+        /// How many days after opening this item expires, used to default the expiry date when it's opened.
+        /// </summary>
+        public int? ExpiryAfterOpeningDays { get; set; }
+
+        /// <summary>
         /// When this item was first added to the system.
         /// </summary>
         public DateTime CreatedAt { get; set; }
