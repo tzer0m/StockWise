@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Services;
@@ -33,6 +34,7 @@ builder.Services.AddAuthentication(options =>
 
 // Create the web application and configure.
 WebApplication app = builder.Build();
+app.UseForwardedHeaders(new ForwardedHeadersOptions { ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto });
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error");
