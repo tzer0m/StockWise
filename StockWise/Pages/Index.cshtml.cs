@@ -7,15 +7,15 @@ using StockWise.Models;
 namespace StockWise.Pages
 {
     /// <summary>
-    /// Page model for the home page: a barcode scan hub, plus a browsable listing of all current stock grouped by category.
+    /// Page model for the home page: a barcode scan hub, plus a single flat table of all current stock.
     /// </summary>
     /// <param name="db">The database context.</param>
     public class IndexModel(StockWiseDbContext db) : PageModel
     {
         /// <summary>
-        /// All storage categories, with their locations and stock loaded.
+        /// All current stock rows, with their item, location, and category loaded.
         /// </summary>
-        public List<StorageCategory> Categories { get; set; } = [];
+        public List<StockWise.Models.Stock> AllStock { get; set; } = [];
 
         /// <summary>
         /// The scanned barcode.
@@ -34,11 +34,11 @@ namespace StockWise.Pages
         public List<StockWise.Models.Stock> ScannedItemStock { get; set; } = [];
 
         /// <summary>
-        /// Loads all categories, locations, and current stock, plus the scanned item if a barcode was given.
+        /// Loads all current stock, plus the scanned item if a barcode was given.
         /// </summary>
         public async Task OnGetAsync()
         {
-            Categories = await db.StorageCategories.Include(x => x.Locations).ThenInclude(x => x.Stock).ThenInclude(x => x.Item).OrderBy(x => x.Name).ToListAsync();
+            AllStock = await db.Stock.Include(x => x.Item).Include(x => x.Location).ThenInclude(x => x!.Category).OrderBy(x => x.Location!.Category!.Name).ThenBy(x => x.Location!.Name).ThenBy(x => x.Item!.Name).ToListAsync();
             await LoadScannedItemAsync();
         }
 
