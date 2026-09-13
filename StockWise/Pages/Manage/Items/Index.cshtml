@@ -6,7 +6,7 @@
 
 <form method="get" class="mb-4">
     <div class="mb-3">
-        <input asp-for="Barcode" class="form-control" autofocus autocomplete="off" />
+        <input asp-for="Barcode" class="form-control" autofocus autocomplete="off" placeholder="Scan a barcode..." />
     </div>
 </form>
 
@@ -32,7 +32,7 @@ else
                 <th><a asp-page="Index" asp-route-sort="name" asp-route-direction="@(Model.Sort == "name" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Name@(Model.Sort == "name" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th><a asp-page="Index" asp-route-sort="brand" asp-route-direction="@(Model.Sort == "brand" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Brand@(Model.Sort == "brand" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th><a asp-page="Index" asp-route-sort="barcode" asp-route-direction="@(Model.Sort == "barcode" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Barcode@(Model.Sort == "barcode" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
-                <th><a asp-page="Index" asp-route-sort="openable" asp-route-direction="@(Model.Sort == "openable" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Can Be Opened@(Model.Sort == "openable" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a asp-page="Index" asp-route-sort="openable" asp-route-direction="@(Model.Sort == "openable" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Openable@(Model.Sort == "openable" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th></th>
             </tr>
         </thead>
@@ -43,7 +43,7 @@ else
                     <td class="cell-heading">@item.Name</td>
                     <td data-label="Brand">@item.Brand</td>
                     <td data-label="Barcode">@item.Barcode</td>
-                    <td data-label="Can Be Opened">
+                    <td data-label="Openable">
                         @if (item.IsOpenable)
                         {
                             <span class="tile tile-green tile-icon"><partial name="_Icon" model="@("check-lg")" /></span>
