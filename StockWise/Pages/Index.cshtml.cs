@@ -77,6 +77,28 @@ namespace StockWise.Pages
         }
 
         /// <summary>
+        /// Checks out multiple units of stock from a row in one action, deleting it if it reaches zero.
+        /// </summary>
+        /// <param name="stockId">The ID of the stock row to check out from.</param>
+        /// <param name="quantity">The number of units to check out.</param>
+        public async Task<IActionResult> OnPostCheckoutMultipleAsync(int stockId, int quantity)
+        {
+            StockWise.Models.Stock? stock = await db.Stock.FindAsync(stockId);
+            if (stock is not null && quantity > 0)
+            {
+                stock.Quantity -= Math.Min(quantity, stock.Quantity);
+                if (stock.Quantity <= 0)
+                {
+                    db.Stock.Remove(stock);
+                }
+
+                await db.SaveChangesAsync();
+            }
+
+            return RedirectToPage(new { Barcode, Sort, Direction });
+        }
+
+        /// <summary>
         /// Finishes an opened stock row, removing it entirely.
         /// </summary>
         /// <param name="stockId">The ID of the stock row to finish.</param>

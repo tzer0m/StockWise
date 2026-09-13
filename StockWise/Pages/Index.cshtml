@@ -47,6 +47,7 @@
                                 <th></th>
                                 <th></th>
                                 <th></th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -65,8 +66,20 @@
                                     </td>
                                     <td class="action-cell">
                                         <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" asp-route-barcode="@Model.Barcode" class="d-inline">
-                                            <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1"><partial name="_Icon" model="@("dash-circle")" /></button>
+                                            <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1">1</button>
                                         </form>
+                                    </td>
+                                    <td class="action-cell">
+                                        @if (stock.Quantity > 1)
+                                        {
+                                            <span class="checkout-multi d-inline-block position-relative">
+                                                <button type="button" class="btn-icon checkout-multi-toggle" title="Checkout multiple" aria-label="Checkout multiple">#</button>
+                                                <form method="post" asp-page-handler="CheckoutMultiple" asp-route-stockId="@stock.StockId" asp-route-barcode="@Model.Barcode" class="checkout-multi-form d-none align-items-center gap-2">
+                                                    <input type="number" name="quantity" min="1" max="@stock.Quantity" value="@stock.Quantity" class="form-control form-control-sm" />
+                                                    <button type="submit" class="btn btn-primary btn-sm">Go</button>
+                                                </form>
+                                            </span>
+                                        }
                                     </td>
                                     <td class="action-cell">
                                         @if (stock.OpenedAt is not null)
@@ -144,14 +157,36 @@ else
                         {
                             <a asp-page="/Stock/Open" asp-route-id="@stock.StockId" class="btn-icon" title="Open" aria-label="Open"><partial name="_Icon" model="@("unlock")" /></a>
                         }
+                        else
+                        {
+                            <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
+                        }
                         <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" class="d-inline">
-                            <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1"><partial name="_Icon" model="@("dash-circle")" /></button>
+                            <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1">1</button>
                         </form>
+                        @if (stock.Quantity > 1)
+                        {
+                            <span class="checkout-multi d-inline-block position-relative">
+                                <button type="button" class="btn-icon checkout-multi-toggle" title="Checkout multiple" aria-label="Checkout multiple">#</button>
+                                <form method="post" asp-page-handler="CheckoutMultiple" asp-route-stockId="@stock.StockId" class="checkout-multi-form d-none align-items-center gap-2">
+                                    <input type="number" name="quantity" min="1" max="@stock.Quantity" value="@stock.Quantity" class="form-control form-control-sm" />
+                                    <button type="submit" class="btn btn-primary btn-sm">Go</button>
+                                </form>
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
+                        }
                         @if (stock.OpenedAt is not null)
                         {
                             <form method="post" asp-page-handler="Finish" asp-route-stockId="@stock.StockId" class="d-inline">
                                 <button type="submit" class="btn-icon" title="Finish" aria-label="Finish"><partial name="_Icon" model="@("check2-circle")" /></button>
                             </form>
+                        }
+                        else
+                        {
+                            <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
                         }
                     </td>
                 </tr>

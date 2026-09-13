@@ -131,3 +131,25 @@ document.addEventListener('DOMContentLoaded', function () {
         render();
     });
 });
+
+// Home page: toggles the inline "checkout multiple" quantity prompt open/closed.
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.checkout-multi-toggle').forEach(function (toggle) {
+        toggle.addEventListener('click', function () {
+            var form = toggle.parentElement.querySelector('.checkout-multi-form');
+            if (!form) {
+                return;
+            }
+
+            form.classList.toggle('d-none');
+            form.classList.toggle('d-flex');
+            if (!form.classList.contains('d-none')) {
+                var input = form.querySelector('input[type="number"]');
+                if (input) {
+                    input.focus();
+                    input.select();
+                }
+            }
+        });
+    });
+});

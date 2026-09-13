@@ -225,6 +225,16 @@ button.btn-icon {
     margin-right: .3rem;
 }
 
+/* Reserves a button-sized gap on widescreen so action buttons line up in the same column across rows, even when a row doesn't have that action. Hidden entirely on mobile, where actions just pack together. */
+.btn-icon-placeholder {
+    visibility: hidden;
+}
+
+/* Inline "checkout multiple" quantity prompt, toggled open by the # button. */
+.checkout-multi-form .form-control {
+    width: 4.5rem;
+}
+
 .tile-red {
     background-color: #dc3545;
     color: #fff;
@@ -372,6 +382,11 @@ button.btn-icon {
         width: auto;
         margin-top: .4rem;
         padding: 0 .4rem .4rem 0;
+    }
+
+    /* On mobile, actions just pack together — the widescreen column-alignment placeholders aren't needed. */
+    .btn-icon-placeholder {
+        display: none;
     }
 
     /* Bigger tap targets for the icon buttons (open/checkout/finish) on touch screens. */
