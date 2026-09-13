@@ -66,7 +66,7 @@ namespace StockWise.Pages.Manage.Categories
                 await db.SaveChangesAsync();
             }
 
-            return RedirectToPage();
+            return RedirectToPage(new { Sort, Direction });
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace StockWise.Pages.Manage.Categories
             if (hasLocations)
             {
                 ErrorMessage = "Can't delete a category that still has locations assigned to it.";
-                return RedirectToPage();
+                return RedirectToPage(new { Sort, Direction });
             }
 
             StorageCategory? category = await db.StorageCategories.FindAsync(id);
@@ -89,7 +89,7 @@ namespace StockWise.Pages.Manage.Categories
                 await db.SaveChangesAsync();
             }
 
-            return RedirectToPage();
+            return RedirectToPage(new { Sort, Direction });
         }
 
         /// <summary>

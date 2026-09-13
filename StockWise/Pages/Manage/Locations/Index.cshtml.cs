@@ -72,7 +72,7 @@ namespace StockWise.Pages.Manage.Locations
                 await db.SaveChangesAsync();
             }
 
-            return RedirectToPage();
+            return RedirectToPage(new { Sort, Direction });
         }
 
         /// <summary>
@@ -85,7 +85,7 @@ namespace StockWise.Pages.Manage.Locations
             if (hasStock)
             {
                 ErrorMessage = "Can't delete a location that still has stock held there.";
-                return RedirectToPage();
+                return RedirectToPage(new { Sort, Direction });
             }
 
             Location? location = await db.Locations.FindAsync(id);
@@ -95,7 +95,7 @@ namespace StockWise.Pages.Manage.Locations
                 await db.SaveChangesAsync();
             }
 
-            return RedirectToPage();
+            return RedirectToPage(new { Sort, Direction });
         }
 
         /// <summary>

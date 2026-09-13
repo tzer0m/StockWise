@@ -30,11 +30,7 @@ else
         <form method="post" asp-page-handler="AddStock" id="bulkStockForm">
             <input type="hidden" asp-for="Batch" />
             <input type="hidden" name="itemId" value="@Model.Item.ItemId" />
-            <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
-            @if (Model.DebugModelState is not null)
-            {
-                <div class="alert alert-warning small">@Model.DebugModelState</div>
-            }
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
             <div class="form-row">
                 <label asp-for="LocationId" class="form-label">Location</label>
                 <div class="form-row-control">

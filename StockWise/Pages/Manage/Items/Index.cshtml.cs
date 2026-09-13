@@ -84,7 +84,7 @@ namespace StockWise.Pages.Manage.Items
             if (hasStock)
             {
                 ErrorMessage = "Can't delete an item that still has stock held.";
-                return RedirectToPage();
+                return RedirectToPage(new { Sort, Direction });
             }
 
             Item? item = await db.Items.Include(x => x.ItemStorageCategories).FirstOrDefaultAsync(x => x.ItemId == id);
@@ -94,7 +94,7 @@ namespace StockWise.Pages.Manage.Items
                 await db.SaveChangesAsync();
             }
 
-            return RedirectToPage();
+            return RedirectToPage(new { Sort, Direction });
         }
 
         /// <summary>

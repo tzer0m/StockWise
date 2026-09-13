@@ -72,11 +72,6 @@ namespace StockWise.Pages.Stock
         public ItemFormInput NewItem { get; set; } = new();
 
         /// <summary>
-        /// TEMPORARY: a dump of every ModelState entry and its validation state, for diagnosing why the Add Stock handler thinks the form is invalid.
-        /// </summary>
-        public string? DebugModelState { get; set; }
-
-        /// <summary>
         /// Loads the scan page if no batch is in progress, otherwise the next item in the batch to review.
         /// </summary>
         public async Task OnGetAsync()
@@ -107,7 +102,6 @@ namespace StockWise.Pages.Stock
 
             if (!ModelState.IsValid)
             {
-                DebugModelState = string.Join(" | ", ModelState.Select(x => $"{x.Key}={x.Value!.ValidationState}:[{string.Join(';', x.Value.Errors.Select(e => e.ErrorMessage))}]"));
                 await LoadDisplayContextAsync(entries);
                 return Page();
             }
