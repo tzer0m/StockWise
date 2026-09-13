@@ -14,9 +14,9 @@
 {
     @if (Model.ScannedItem is null)
     {
-        <div class="alert alert-warning">
+        <div class="alert alert-warning d-flex justify-content-between align-items-center">
             "@Model.Barcode" not found.
-            <a asp-page="/Manage/Items/Add" asp-route-barcode="@Model.Barcode">Add</a>
+            <a asp-page="/Manage/Items/Add" asp-route-barcode="@Model.Barcode" class="btn btn-primary btn-sm">Add</a>
         </div>
     }
     else
