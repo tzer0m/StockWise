@@ -4,23 +4,30 @@
     ViewData["Title"] = "Open Item";
 }
 
-<h1>Open @Model.Stock?.Item?.Name</h1>
+<h2 class="mb-1">@Model.ItemTitle</h2>
+<div class="h6 text-muted mb-4">@Model.Stock?.Item?.Barcode</div>
 
 <form method="post">
-    <div class="mb-3">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+    <div class="form-row">
         <label asp-for="LocationId" class="form-label">New Location</label>
-        <select asp-for="LocationId" class="form-select" data-expiry-target="Expiry">
-            <option value="">-- Select a location --</option>
-            @foreach (StockWise.Models.Location location in Model.AllowedLocations)
-            {
-                <option value="@location.LocationId" data-category="@location.Category?.Name">@location.Category?.Name - @location.Name</option>
-            }
-        </select>
+        <div class="form-row-control">
+            <select asp-for="LocationId" class="form-select" data-expiry-target="Expiry" required>
+                <option value="">-- Select a location --</option>
+                @foreach (StockWise.Models.Location location in Model.AllowedLocations)
+                {
+                    <option value="@location.LocationId" data-category="@location.Category?.Name">@location.Category?.Name - @location.Name</option>
+                }
+            </select>
+            <span asp-validation-for="LocationId" class="field-validation-error"></span>
+        </div>
     </div>
-    <div class="mb-3">
+    <div class="form-row">
         <label asp-for="Expiry" class="form-label">New Expiry</label>
-        <input asp-for="Expiry" class="form-control" type="date" />
+        <div class="form-row-control">
+            <input asp-for="Expiry" class="form-control" type="date" />
+        </div>
     </div>
     <button type="submit" class="btn btn-primary">Open</button>
-    <a asp-page="/Index" class="btn btn-link">Cancel</a>
+    <a asp-page="/Index" class="btn btn-outline-secondary">Cancel</a>
 </form>

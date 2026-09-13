@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,15 @@ namespace StockWise.Pages.Stock
         public StockWise.Models.Stock? Stock { get; set; }
 
         /// <summary>
+        /// The heading to show for the item being opened, formatted as "Brand Name", omitting the brand when it's unknown.
+        /// </summary>
+        public string ItemTitle => Stock?.Item is null
+            ? string.Empty
+            : string.IsNullOrWhiteSpace(Stock.Item.Brand)
+                ? Stock.Item.Name
+                : $"{Stock.Item.Brand} {Stock.Item.Name}";
+
+        /// <summary>
         /// The locations allowed for this item once opened.
         /// </summary>
         public List<Location> AllowedLocations { get; set; } = [];
@@ -26,6 +36,7 @@ namespace StockWise.Pages.Stock
         /// The new location to move the opened unit to.
         /// </summary>
         [BindProperty]
+        [Range(1, int.MaxValue, ErrorMessage = "Select a location.")]
         public int LocationId { get; set; }
 
         /// <summary>
