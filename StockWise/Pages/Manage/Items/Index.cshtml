@@ -41,7 +41,10 @@ else
             @foreach (StockWise.Models.Item item in Model.Items)
             {
                 <tr>
-                    <td class="cell-heading">@item.Name</td>
+                    <td class="cell-heading">
+                        <span class="d-md-none">@(string.IsNullOrWhiteSpace(item.Brand) ? item.Name : $"{item.Brand} {item.Name}")</span>
+                        <span class="d-none d-md-inline">@item.Name</span>
+                    </td>
                     <td data-label="Brand">@item.Brand</td>
                     <td data-label="Type">@item.Type?.Name</td>
                     <td data-label="Barcode">@item.Barcode</td>

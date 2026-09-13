@@ -187,7 +187,10 @@ else
             @foreach (IInventoryRow row in Model.AllRows)
             {
                 <tr class="category-row" style="--cat-color: @(row.CategoryColor ?? "#6c757d");">
-                    <td class="cell-heading">@row.Name</td>
+                    <td class="cell-heading">
+                        <span class="d-md-none">@(string.IsNullOrWhiteSpace(row.Brand) ? row.Name : $"{row.Brand} {row.Name}")</span>
+                        <span class="d-none d-md-inline">@row.Name</span>
+                    </td>
                     <td data-label="Brand">@row.Brand</td>
                     <td data-label="Type">@row.TypeName</td>
                     <td data-label="Location">@row.LocationName</td>

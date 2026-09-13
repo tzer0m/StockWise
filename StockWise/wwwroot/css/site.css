@@ -415,6 +415,11 @@ button.btn-icon {
         padding-bottom: .35rem;
     }
 
+    /* Brand is folded into the item heading on narrow screens (see cell-heading's two spans), so its own column is hidden here. */
+    .table-cards tbody td[data-label="Brand"] {
+        display: none;
+    }
+
     .table-cards tbody td.action-cell {
         display: inline-block;
         width: auto;
@@ -465,13 +470,18 @@ button.btn-icon {
         content: none;
     }
 
+    /* Overrides the "table-cards-grid tbody td[data-label]" block-display rule above (same specificity, later wins) so Brand stays hidden on the grid table too. */
+    .table-cards-grid tbody td[data-label="Brand"] {
+        display: none;
+    }
+
     .table-cards-grid tbody td.cell-heading {
         grid-column: 1;
         grid-row: 1;
         padding-bottom: 0;
     }
 
-    .table-cards-grid tbody td[data-label="Brand"] {
+    .table-cards-grid tbody td[data-label="Type"] {
         grid-column: 1;
         grid-row: 2;
         text-align: left;
@@ -501,15 +511,9 @@ button.btn-icon {
         text-align: right;
     }
 
-    .table-cards-grid tbody td[data-label="Type"] {
-        grid-column: 1;
-        grid-row: 4;
-        text-align: left;
-    }
-
     .table-cards-grid tbody td.action-cell {
         grid-column: 1 / -1;
-        grid-row: 5;
+        grid-row: 4;
         display: flex;
         gap: .4rem;
         margin-top: .4rem;
