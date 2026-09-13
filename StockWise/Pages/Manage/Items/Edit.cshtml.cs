@@ -30,6 +30,12 @@ namespace StockWise.Pages.Manage.Items
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
+        /// The item's brand, if known.
+        /// </summary>
+        [BindProperty]
+        public string? Brand { get; set; }
+
+        /// <summary>
         /// A URL to an image of the item.
         /// </summary>
         [BindProperty]
@@ -68,6 +74,7 @@ namespace StockWise.Pages.Manage.Items
             ItemId = item.ItemId;
             Barcode = item.Barcode;
             Name = item.Name;
+            Brand = item.Brand;
             ImageUrl = item.ImageUrl;
             IsOpenable = item.IsOpenable;
             ExpiryAfterOpeningDays = item.ExpiryAfterOpeningDays;
@@ -91,7 +98,7 @@ namespace StockWise.Pages.Manage.Items
                 return NotFound();
             }
 
-            await itemService.UpdateAsync(item, Barcode, Name, ImageUrl, IsOpenable, ExpiryAfterOpeningDays, CategoryAllowances);
+            await itemService.UpdateAsync(item, Barcode, Name, Brand, ImageUrl, IsOpenable, ExpiryAfterOpeningDays, CategoryAllowances);
             return RedirectToPage("Index");
         }
     }

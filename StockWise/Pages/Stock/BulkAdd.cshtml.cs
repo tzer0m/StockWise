@@ -75,6 +75,12 @@ namespace StockWise.Pages.Stock
         public string NewItemName { get; set; } = string.Empty;
 
         /// <summary>
+        /// The brand for the new item, when the current barcode is unknown.
+        /// </summary>
+        [BindProperty]
+        public string? NewItemBrand { get; set; }
+
+        /// <summary>
         /// A URL to an image of the new item, when the current barcode is unknown.
         /// </summary>
         [BindProperty]
@@ -140,7 +146,7 @@ namespace StockWise.Pages.Stock
                 return Page();
             }
 
-            await itemService.CreateAsync(NewItemBarcode, NewItemName, NewItemImageUrl, NewItemIsOpenable, NewItemExpiryAfterOpeningDays, NewItemCategoryAllowances);
+            await itemService.CreateAsync(NewItemBarcode, NewItemName, NewItemBrand, NewItemImageUrl, NewItemIsOpenable, NewItemExpiryAfterOpeningDays, NewItemCategoryAllowances);
             return RedirectToPage(new { Batch });
         }
 

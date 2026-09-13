@@ -21,6 +21,11 @@ namespace StockWise.Models
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
+        /// The item's brand, if known.
+        /// </summary>
+        public string? Brand { get; set; }
+
+        /// <summary>
         /// A URL to an image of the item.
         /// </summary>
         public string? ImageUrl { get; set; }

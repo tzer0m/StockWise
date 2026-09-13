@@ -103,6 +103,7 @@ namespace StockWise.Pages
             return sort switch
             {
                 "item" => descending ? query.OrderByDescending(x => x.Item!.Name) : query.OrderBy(x => x.Item!.Name),
+                "brand" => descending ? query.OrderByDescending(x => x.Item!.Brand) : query.OrderBy(x => x.Item!.Brand),
                 "location" => descending ? query.OrderByDescending(x => x.Location!.Name) : query.OrderBy(x => x.Location!.Name),
                 "quantity" => descending ? query.OrderByDescending(x => x.Quantity) : query.OrderBy(x => x.Quantity),
                 "opened" => descending ? query.OrderByDescending(x => x.OpenedAt) : query.OrderBy(x => x.OpenedAt),

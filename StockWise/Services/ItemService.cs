@@ -53,13 +53,14 @@ namespace StockWise.Services
         /// </summary>
         /// <param name="barcode">The item's barcode.</param>
         /// <param name="name">The item's display name.</param>
+        /// <param name="brand">The item's brand, if known.</param>
         /// <param name="imageUrl">A URL to an image of the item, if any.</param>
         /// <param name="isOpenable">Whether a unit of this item can be opened.</param>
         /// <param name="expiryAfterOpeningDays">How many days after opening this item expires, if it's openable.</param>
         /// <param name="categoryAllowances">The category allowances chosen for the item.</param>
-        public async Task<Item> CreateAsync(string barcode, string name, string? imageUrl, bool isOpenable, int? expiryAfterOpeningDays, List<CategoryAllowance> categoryAllowances)
+        public async Task<Item> CreateAsync(string barcode, string name, string? brand, string? imageUrl, bool isOpenable, int? expiryAfterOpeningDays, List<CategoryAllowance> categoryAllowances)
         {
-            Item item = new() { Barcode = barcode.Trim(), Name = name.Trim(), ImageUrl = imageUrl, IsOpenable = isOpenable, ExpiryAfterOpeningDays = isOpenable ? expiryAfterOpeningDays : null, CreatedAt = DateTime.UtcNow };
+            Item item = new() { Barcode = barcode.Trim(), Name = name.Trim(), Brand = brand, ImageUrl = imageUrl, IsOpenable = isOpenable, ExpiryAfterOpeningDays = isOpenable ? expiryAfterOpeningDays : null, CreatedAt = DateTime.UtcNow };
             ApplyCategoryAllowances(item, categoryAllowances, isOpenable);
             db.Items.Add(item);
             await db.SaveChangesAsync();
@@ -72,14 +73,16 @@ namespace StockWise.Services
         /// <param name="item">The item to update.</param>
         /// <param name="barcode">The item's barcode.</param>
         /// <param name="name">The item's display name.</param>
+        /// <param name="brand">The item's brand, if known.</param>
         /// <param name="imageUrl">A URL to an image of the item, if any.</param>
         /// <param name="isOpenable">Whether a unit of this item can be opened.</param>
         /// <param name="expiryAfterOpeningDays">How many days after opening this item expires, if it's openable.</param>
         /// <param name="categoryAllowances">The category allowances chosen for the item.</param>
-        public async Task UpdateAsync(Item item, string barcode, string name, string? imageUrl, bool isOpenable, int? expiryAfterOpeningDays, List<CategoryAllowance> categoryAllowances)
+        public async Task UpdateAsync(Item item, string barcode, string name, string? brand, string? imageUrl, bool isOpenable, int? expiryAfterOpeningDays, List<CategoryAllowance> categoryAllowances)
         {
             item.Barcode = barcode.Trim();
             item.Name = name.Trim();
+            item.Brand = brand;
             item.ImageUrl = imageUrl;
             item.IsOpenable = isOpenable;
             item.ExpiryAfterOpeningDays = isOpenable ? expiryAfterOpeningDays : null;
