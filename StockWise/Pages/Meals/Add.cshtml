@@ -1,0 +1,44 @@
+@page
+@model StockWise.Pages.Meals.AddModel
+@{
+    ViewData["Title"] = "Add Meal";
+}
+
+<h2 class="mb-4">Add Meal</h2>
+
+@if (Model.PrintError is not null)
+{
+    <div class="alert alert-danger">@Model.PrintError</div>
+}
+
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+    <div class="form-row">
+        <label asp-for="Name" class="form-label">Name</label>
+        <div class="form-row-control">
+            <input asp-for="Name" class="form-control" required />
+            <span asp-validation-for="Name" class="field-validation-error"></span>
+        </div>
+    </div>
+    <div class="form-row">
+        <label asp-for="LocationId" class="form-label">Location</label>
+        <div class="form-row-control">
+            <select asp-for="LocationId" class="form-select" required>
+                <option value="">-- Select a location --</option>
+                @foreach (StockWise.Models.Location location in Model.FreezerLocations)
+                {
+                    <option value="@location.LocationId">@location.Name</option>
+                }
+            </select>
+            <span asp-validation-for="LocationId" class="field-validation-error"></span>
+        </div>
+    </div>
+    <div class="form-row">
+        <label asp-for="Quantity" class="form-label">Quantity</label>
+        <div class="form-row-control">
+            <input asp-for="Quantity" class="form-control" type="number" min="1" required />
+            <span asp-validation-for="Quantity" class="field-validation-error"></span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Meal</button>
+</form>

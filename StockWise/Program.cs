@@ -12,6 +12,12 @@ builder.Services.AddRazorPages(options => options.Conventions.AuthorizeFolder("/
 builder.Services.AddDbContext<StockWiseDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("StockWiseDb")));
 builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<StockService>();
+builder.Services.AddScoped<MealService>();
+builder.Services.AddHttpClient<ChitterClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Chitter:BaseUrl"] ?? throw new InvalidOperationException("Chitter:BaseUrl is not configured"));
+    client.DefaultRequestHeaders.Add("X-API-Key", builder.Configuration["Chitter:ApiKey"] ?? throw new InvalidOperationException("Chitter:ApiKey is not configured"));
+});
 builder.Services.AddTingClient(builder.Configuration);
 builder.Services.AddHostedService<ExpiryNotificationService>();
 

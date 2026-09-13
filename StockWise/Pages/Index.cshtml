@@ -1,4 +1,5 @@
 @page
+@using StockWise.Models
 @model IndexModel
 @{
     ViewData["Title"] = "Home";
@@ -17,14 +18,48 @@
 
 @if (!string.IsNullOrWhiteSpace(Model.Barcode))
 {
-    @if (Model.ScannedItem is null)
+    @if (Model.ScannedItem is null && Model.ScannedMealInstance is null)
     {
         <div class="alert alert-warning d-flex justify-content-between align-items-center">
             "@Model.Barcode" not found.
             <a asp-page="/Manage/Items/Add" asp-route-barcode="@Model.Barcode" class="btn btn-primary btn-sm">Add</a>
         </div>
     }
-    else
+    else if (Model.ScannedMealInstance is not null)
+    {
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h2 class="h4 mb-0">@Model.ScannedMealInstance.Meal?.Name</h2>
+                    <form method="post" asp-page-handler="Eat" asp-route-mealInstanceId="@Model.ScannedMealInstance.MealInstanceId">
+                        <button type="submit" class="btn btn-primary btn-sm">Eat</button>
+                    </form>
+                </div>
+                <table class="table mb-0 table-cards">
+                    <tbody>
+                        <tr>
+                            <td data-label="Location">@Model.ScannedMealInstance.Meal?.Location?.Name</td>
+                            <td data-label="Expiry">
+                                @{
+                                    int? daysUntilExpiry = IndexModel.GetDaysUntilExpiry(Model.ScannedMealInstance.Meal?.Expiry);
+                                    string? expiryBadgeClass = IndexModel.GetExpiryBadgeClass(daysUntilExpiry);
+                                }
+                                @if (expiryBadgeClass is not null)
+                                {
+                                    <span class="@expiryBadgeClass">@IndexModel.FormatDaysUntilExpiry(daysUntilExpiry)</span>
+                                }
+                                else
+                                {
+                                    @IndexModel.FormatDaysUntilExpiry(daysUntilExpiry)
+                                }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+    else if (Model.ScannedItem is not null)
     {
         <div class="card mb-4">
             <div class="card-body">
@@ -117,7 +152,7 @@
     }
 }
 
-@if (Model.AllStock.Count == 0)
+@if (Model.AllRows.Count == 0)
 {
     <p>No stock currently held.</p>
 }
@@ -136,16 +171,16 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (StockWise.Models.Stock stock in Model.AllStock)
+            @foreach (IInventoryRow row in Model.AllRows)
             {
-                <tr class="category-row" style="--cat-color: @(stock.Location?.Category?.Color ?? "#6c757d");">
-                    <td class="cell-heading">@stock.Item?.Name</td>
-                    <td data-label="Brand">@stock.Item?.Brand</td>
-                    <td data-label="Location">@stock.Location?.Name</td>
-                    <td data-label="Quantity">@stock.Quantity</td>
+                <tr class="category-row" style="--cat-color: @(row.CategoryColor ?? "#6c757d");">
+                    <td class="cell-heading">@row.Name</td>
+                    <td data-label="Brand">@row.Brand</td>
+                    <td data-label="Location">@row.LocationName</td>
+                    <td data-label="Quantity">@row.Quantity</td>
                     <td data-label="Expiry">
                         @{
-                            int? daysUntilExpiry = IndexModel.GetDaysUntilExpiry(stock.Expiry);
+                            int? daysUntilExpiry = IndexModel.GetDaysUntilExpiry(row.Expiry);
                             string? expiryBadgeClass = IndexModel.GetExpiryBadgeClass(daysUntilExpiry);
                         }
                         @if (expiryBadgeClass is not null)
@@ -158,9 +193,9 @@ else
                         }
                     </td>
                     <td data-label="Opened">
-                        @if (stock.Item is not null && stock.Item.IsOpenable)
+                        @if (row is StockRow openedStockRow && openedStockRow.Stock.Item is not null && openedStockRow.Stock.Item.IsOpenable)
                         {
-                            @if (stock.OpenedAt is not null)
+                            @if (openedStockRow.Stock.OpenedAt is not null)
                             {
                                 <span class="tile tile-green tile-icon"><partial name="_Icon" model="@("check-lg")" /></span>
                             }
@@ -171,39 +206,51 @@ else
                         }
                     </td>
                     <td class="action-cell">
-                        @if (stock.Item is not null && stock.Item.IsOpenable && stock.OpenedAt is null)
+                        @if (row is StockRow stockRow)
                         {
-                            <a asp-page="/Stock/Open" asp-route-id="@stock.StockId" class="btn-icon" title="Open" aria-label="Open"><partial name="_Icon" model="@("unlock")" /></a>
-                        }
-                        else
-                        {
-                            <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
-                        }
-                        <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" class="d-inline">
-                            <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1">1</button>
-                        </form>
-                        @if (stock.Quantity > 1)
-                        {
-                            <span class="checkout-multi d-inline-block position-relative">
-                                <button type="button" class="btn-icon checkout-multi-toggle" title="Checkout multiple" aria-label="Checkout multiple">#</button>
-                                <form method="post" asp-page-handler="CheckoutMultiple" asp-route-stockId="@stock.StockId" class="checkout-multi-form d-none align-items-center gap-2">
-                                    <input type="number" name="quantity" min="1" max="@stock.Quantity" value="@stock.Quantity" class="form-control form-control-sm" />
-                                    <button type="submit" class="btn btn-primary btn-sm">Go</button>
-                                </form>
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
-                        }
-                        @if (stock.OpenedAt is not null)
-                        {
-                            <form method="post" asp-page-handler="Finish" asp-route-stockId="@stock.StockId" class="d-inline">
-                                <button type="submit" class="btn-icon" title="Finish" aria-label="Finish"><partial name="_Icon" model="@("check2-circle")" /></button>
+                            @if (stockRow.Stock.Item is not null && stockRow.Stock.Item.IsOpenable && stockRow.Stock.OpenedAt is null)
+                            {
+                                <a asp-page="/Stock/Open" asp-route-id="@stockRow.Stock.StockId" class="btn-icon" title="Open" aria-label="Open"><partial name="_Icon" model="@("unlock")" /></a>
+                            }
+                            else
+                            {
+                                <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
+                            }
+                            <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stockRow.Stock.StockId" class="d-inline">
+                                <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1">1</button>
                             </form>
+                            @if (stockRow.Stock.Quantity > 1)
+                            {
+                                <span class="checkout-multi d-inline-block position-relative">
+                                    <button type="button" class="btn-icon checkout-multi-toggle" title="Checkout multiple" aria-label="Checkout multiple">#</button>
+                                    <form method="post" asp-page-handler="CheckoutMultiple" asp-route-stockId="@stockRow.Stock.StockId" class="checkout-multi-form d-none align-items-center gap-2">
+                                        <input type="number" name="quantity" min="1" max="@stockRow.Stock.Quantity" value="@stockRow.Stock.Quantity" class="form-control form-control-sm" />
+                                        <button type="submit" class="btn btn-primary btn-sm">Go</button>
+                                    </form>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
+                            }
+                            @if (stockRow.Stock.OpenedAt is not null)
+                            {
+                                <form method="post" asp-page-handler="Finish" asp-route-stockId="@stockRow.Stock.StockId" class="d-inline">
+                                    <button type="submit" class="btn-icon" title="Finish" aria-label="Finish"><partial name="_Icon" model="@("check2-circle")" /></button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
+                            }
                         }
-                        else
+                        else if (row is MealRow mealRow)
                         {
+                            <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
+                            <form method="post" asp-page-handler="Eat" asp-route-mealInstanceId="@mealRow.Meal.Instances[0].MealInstanceId" class="d-inline">
+                                <button type="submit" class="btn-icon" title="Eat" aria-label="Eat">Eat</button>
+                            </form>
+                            <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
                             <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
                         }
                     </td>

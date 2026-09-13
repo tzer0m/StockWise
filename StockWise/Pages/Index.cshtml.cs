@@ -3,19 +3,21 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages
 {
     /// <summary>
-    /// Page model for the home page: a barcode scan hub, plus a single sortable table of all current stock.
+    /// Page model for the home page: a barcode scan hub, plus a single sortable table combining all current stock and frozen meal batches.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class IndexModel(StockWiseDbContext db) : PageModel
+    /// <param name="mealService">The meal service.</param>
+    public class IndexModel(StockWiseDbContext db, MealService mealService) : PageModel
     {
         /// <summary>
-        /// All current stock rows, sorted, with their item, location, and category loaded.
+        /// All current stock and meal rows, sorted together.
         /// </summary>
-        public List<StockWise.Models.Stock> AllStock { get; set; } = [];
+        public List<IInventoryRow> AllRows { get; set; } = [];
 
         /// <summary>
         /// The scanned barcode.
@@ -24,7 +26,7 @@ namespace StockWise.Pages
         public string? Barcode { get; set; }
 
         /// <summary>
-        /// The column to sort the stock table by.
+        /// The column to sort the combined table by.
         /// </summary>
         [BindProperty(SupportsGet = true)]
         public string Sort { get; set; } = "expiry";
@@ -55,18 +57,27 @@ namespace StockWise.Pages
                 : $"{ScannedItem.Brand} {ScannedItem.Name}";
 
         /// <summary>
+        /// The meal instance matching the scanned barcode, if it parses as a guid and is found.
+        /// </summary>
+        public MealInstance? ScannedMealInstance { get; set; }
+
+        /// <summary>
         /// A message to show after an action elsewhere redirects back here, such as adding stock.
         /// </summary>
         [TempData]
         public string? Message { get; set; }
 
         /// <summary>
-        /// Loads the sorted stock, plus the scanned item if a barcode was given.
+        /// Loads the sorted combined stock/meal rows, plus the scanned item or meal instance if a barcode was given.
         /// </summary>
         public async Task OnGetAsync()
         {
-            IQueryable<StockWise.Models.Stock> query = db.Stock.Include(x => x.Item).Include(x => x.Location).ThenInclude(x => x!.Category);
-            AllStock = await ApplySort(query, Sort, Direction == "desc").ToListAsync();
+            List<StockWise.Models.Stock> stockList = await db.Stock.Include(x => x.Item).Include(x => x.Location).ThenInclude(x => x!.Category).ToListAsync();
+            List<Meal> meals = await mealService.GetAllWithInstancesAsync();
+
+            List<IInventoryRow> rows = [.. stockList.Select(x => new StockRow(x)), .. meals.Select(x => new MealRow(x))];
+            AllRows = ApplySort(rows, Sort, Direction == "desc");
+
             await LoadScannedItemAsync();
         }
 
@@ -130,22 +141,34 @@ namespace StockWise.Pages
         }
 
         /// <summary>
-        /// Applies the requested sort, always pushing stock with no expiry date to the end regardless of direction.
+        /// Eats one meal instance, always consuming the whole thing, and deletes its parent batch too if it was the last remaining instance. Always clears the scanned barcode on redirect, since a single-use instance guid no longer resolves to anything once eaten.
         /// </summary>
-        /// <param name="query">The stock query to sort.</param>
+        /// <param name="mealInstanceId">The guid of the instance to eat.</param>
+        public async Task<IActionResult> OnPostEatAsync(Guid mealInstanceId)
+        {
+            await mealService.EatAsync(mealInstanceId);
+            return RedirectToPage(new { Sort, Direction });
+        }
+
+        /// <summary>
+        /// Applies the requested sort, always pushing rows with no expiry date to the end regardless of direction.
+        /// </summary>
+        /// <param name="rows">The combined stock/meal rows to sort.</param>
         /// <param name="sort">The column to sort by.</param>
         /// <param name="descending">Whether to sort in descending order.</param>
-        private static IOrderedQueryable<StockWise.Models.Stock> ApplySort(IQueryable<StockWise.Models.Stock> query, string sort, bool descending)
+        private static List<IInventoryRow> ApplySort(List<IInventoryRow> rows, string sort, bool descending)
         {
-            return sort switch
+            IOrderedEnumerable<IInventoryRow> ordered = sort switch
             {
-                "item" => descending ? query.OrderByDescending(x => x.Item!.Name) : query.OrderBy(x => x.Item!.Name),
-                "brand" => descending ? query.OrderByDescending(x => x.Item!.Brand) : query.OrderBy(x => x.Item!.Brand),
-                "location" => descending ? query.OrderByDescending(x => x.Location!.Name) : query.OrderBy(x => x.Location!.Name),
-                "quantity" => descending ? query.OrderByDescending(x => x.Quantity) : query.OrderBy(x => x.Quantity),
-                "opened" => descending ? query.OrderByDescending(x => x.OpenedAt) : query.OrderBy(x => x.OpenedAt),
-                _ => descending ? query.OrderBy(x => x.Expiry == null).ThenByDescending(x => x.Expiry) : query.OrderBy(x => x.Expiry == null).ThenBy(x => x.Expiry),
+                "item" => descending ? rows.OrderByDescending(x => x.Name) : rows.OrderBy(x => x.Name),
+                "brand" => descending ? rows.OrderByDescending(x => x.Brand) : rows.OrderBy(x => x.Brand),
+                "location" => descending ? rows.OrderByDescending(x => x.LocationName) : rows.OrderBy(x => x.LocationName),
+                "quantity" => descending ? rows.OrderByDescending(x => x.Quantity) : rows.OrderBy(x => x.Quantity),
+                "opened" => descending ? rows.OrderByDescending(x => x.OpenedAt) : rows.OrderBy(x => x.OpenedAt),
+                _ => descending ? rows.OrderBy(x => x.Expiry == null).ThenByDescending(x => x.Expiry) : rows.OrderBy(x => x.Expiry == null).ThenBy(x => x.Expiry),
             };
+
+            return [.. ordered];
         }
 
         /// <summary>
@@ -229,7 +252,7 @@ namespace StockWise.Pages
         }
 
         /// <summary>
-        /// Looks up the item for the scanned barcode and its current stock rows, if any.
+        /// Looks up the item for the scanned barcode and its current stock rows, or - if no item matches and the barcode parses as a guid - the meal instance it identifies, if any.
         /// </summary>
         private async Task LoadScannedItemAsync()
         {
@@ -239,12 +262,16 @@ namespace StockWise.Pages
             }
 
             ScannedItem = await db.Items.FirstOrDefaultAsync(x => x.Barcode == Barcode);
-            if (ScannedItem is null)
+            if (ScannedItem is not null)
             {
+                ScannedItemStock = await db.Stock.Include(x => x.Location).Where(x => x.ItemId == ScannedItem.ItemId).OrderBy(x => x.Location!.Name).ToListAsync();
                 return;
             }
 
-            ScannedItemStock = await db.Stock.Include(x => x.Location).Where(x => x.ItemId == ScannedItem.ItemId).OrderBy(x => x.Location!.Name).ToListAsync();
+            if (Guid.TryParse(Barcode, out Guid mealInstanceId))
+            {
+                ScannedMealInstance = await mealService.FindInstanceAsync(mealInstanceId);
+            }
         }
     }
 }

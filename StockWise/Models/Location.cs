@@ -29,5 +29,10 @@ namespace StockWise.Models
         /// The stock currently held at this location.
         /// </summary>
         public List<Stock> Stock { get; set; } = [];
+
+        /// <summary>
+        /// The meal batches currently frozen at this location.
+        /// </summary>
+        public List<Meal> Meals { get; set; } = [];
     }
 }

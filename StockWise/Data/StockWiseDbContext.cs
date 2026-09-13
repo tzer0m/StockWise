@@ -35,6 +35,16 @@ namespace StockWise.Data
         public DbSet<Stock> Stock => Set<Stock>();
 
         /// <summary>
+        /// Frozen meal batches.
+        /// </summary>
+        public DbSet<Meal> Meals => Set<Meal>();
+
+        /// <summary>
+        /// Individually-tagged meal instances.
+        /// </summary>
+        public DbSet<MealInstance> MealInstances => Set<MealInstance>();
+
+        /// <summary>
         /// Configures entity relationships and keys beyond what conventions infer.
         /// </summary>
         /// <param name="modelBuilder">The model builder.</param>
