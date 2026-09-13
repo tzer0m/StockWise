@@ -4,18 +4,12 @@
     ViewData["Title"] = "Edit Category";
 }
 
-<h1>Edit Category</h1>
-
 <form method="post">
     <input type="hidden" asp-for="Category.CategoryId" />
-    <div class="mb-3">
-        <label asp-for="Category.Name" class="form-label">Name</label>
-        <input asp-for="Category.Name" class="form-control" autocapitalize="words" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="Category.Color" class="form-label">Colour</label>
-        <input asp-for="Category.Color" type="color" class="form-control form-control-color" value="@(Model.Category.Color ?? "#6c757d")" />
+    <div class="d-flex gap-2 mb-3">
+        <input asp-for="Category.Color" type="color" class="form-control form-control-color" value="@(Model.Category.Color ?? "#6c757d")" title="Colour" />
+        <input asp-for="Category.Name" class="form-control flex-grow-1" autocapitalize="words" placeholder="Name" />
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-page="Index" class="btn btn-link">Cancel</a>
+    <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
 </form>
