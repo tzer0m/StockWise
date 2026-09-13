@@ -218,6 +218,7 @@ namespace StockWise.Pages
             {
                 "item" => descending ? rows.OrderByDescending(x => x.Name) : rows.OrderBy(x => x.Name),
                 "brand" => descending ? rows.OrderByDescending(x => x.Brand) : rows.OrderBy(x => x.Brand),
+                "type" => descending ? rows.OrderByDescending(x => x.TypeName) : rows.OrderBy(x => x.TypeName),
                 "location" => descending ? rows.OrderByDescending(x => x.LocationName) : rows.OrderBy(x => x.LocationName),
                 "quantity" => descending ? rows.OrderByDescending(x => x.Quantity) : rows.OrderBy(x => x.Quantity),
                 "opened" => descending ? rows.OrderByDescending(x => x.OpenedAt) : rows.OrderBy(x => x.OpenedAt),
@@ -317,7 +318,7 @@ namespace StockWise.Pages
                 return;
             }
 
-            ScannedItem = await db.Items.FirstOrDefaultAsync(x => x.Barcode == Barcode);
+            ScannedItem = await db.Items.Include(x => x.Type).FirstOrDefaultAsync(x => x.Barcode == Barcode);
             if (ScannedItem is not null)
             {
                 ScannedItemStock = await db.Stock.Include(x => x.Location).Where(x => x.ItemId == ScannedItem.ItemId).OrderBy(x => x.Location!.Name).ToListAsync();

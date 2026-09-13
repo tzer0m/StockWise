@@ -501,9 +501,15 @@ button.btn-icon {
         text-align: right;
     }
 
+    .table-cards-grid tbody td[data-label="Type"] {
+        grid-column: 1;
+        grid-row: 4;
+        text-align: left;
+    }
+
     .table-cards-grid tbody td.action-cell {
         grid-column: 1 / -1;
-        grid-row: 4;
+        grid-row: 5;
         display: flex;
         gap: .4rem;
         margin-top: .4rem;

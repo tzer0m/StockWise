@@ -82,6 +82,7 @@
                             @foreach (StockWise.Models.Stock stock in Model.ScannedItemStock)
                             {
                                 <tr>
+                                    <td data-label="Type">@Model.ScannedItem.Type?.Name</td>
                                     <td data-label="Location">@stock.Location?.Name</td>
                                     <td data-label="Quantity">@stock.Quantity</td>
                                     <td data-label="Expiry">
@@ -174,6 +175,7 @@ else
             <tr>
                 <th><a href="@Model.BuildSortUrl("item")" class="text-decoration-none">Item@(Model.Sort == "item" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th><a href="@Model.BuildSortUrl("brand")" class="text-decoration-none">Brand@(Model.Sort == "brand" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a href="@Model.BuildSortUrl("type")" class="text-decoration-none">Type@(Model.Sort == "type" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th><a href="@Model.BuildSortUrl("location")" class="text-decoration-none">Location@(Model.Sort == "location" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th><a href="@Model.BuildSortUrl("quantity")" class="text-decoration-none">Quantity@(Model.Sort == "quantity" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th><a href="@Model.BuildSortUrl("expiry")" class="text-decoration-none">Expiry@(Model.Sort == "expiry" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
@@ -187,6 +189,7 @@ else
                 <tr class="category-row" style="--cat-color: @(row.CategoryColor ?? "#6c757d");">
                     <td class="cell-heading">@row.Name</td>
                     <td data-label="Brand">@row.Brand</td>
+                    <td data-label="Type">@row.TypeName</td>
                     <td data-label="Location">@row.LocationName</td>
                     <td data-label="Quantity">@row.Quantity</td>
                     <td data-label="Expiry">
