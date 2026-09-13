@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Disables the "opened" category checkboxes and the expiry-after-opening field unless "Can be opened" is checked.
 document.addEventListener('DOMContentLoaded', function () {
-    var isOpenable = document.getElementById('IsOpenable');
+    var isOpenable = document.querySelector('.openable-toggle');
     if (!isOpenable) {
         return;
     }
