@@ -41,6 +41,11 @@ namespace StockWise.Pages.Manage.Items
         public bool ItemAlreadyExists { get; set; }
 
         /// <summary>
+        /// The IDs of items that still have stock held, and so can't be deleted.
+        /// </summary>
+        public HashSet<int> ItemIdsWithStock { get; set; } = [];
+
+        /// <summary>
         /// An error message to show, if the last action failed.
         /// </summary>
         [TempData]
@@ -52,6 +57,7 @@ namespace StockWise.Pages.Manage.Items
         public async Task<IActionResult> OnGetAsync()
         {
             Items = await ApplySort(db.Items, Sort, Direction == "desc").ToListAsync();
+            ItemIdsWithStock = await db.Stock.Select(x => x.ItemId).Distinct().ToHashSetAsync();
 
             if (!string.IsNullOrWhiteSpace(Barcode))
             {

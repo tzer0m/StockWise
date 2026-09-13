@@ -55,9 +55,12 @@ else
                     </td>
                     <td class="action-cell">
                         <a asp-page="Edit" asp-route-id="@item.ItemId" class="btn-icon" title="Edit" aria-label="Edit"><partial name="_Icon" model="@("pencil")" /></a>
-                        <form method="post" asp-page-handler="Delete" asp-route-id="@item.ItemId" class="d-inline" onsubmit="return confirm('Delete this item?');">
-                            <button type="submit" class="btn-icon" title="Delete" aria-label="Delete"><partial name="_Icon" model="@("x-lg")" /></button>
-                        </form>
+                        @if (!Model.ItemIdsWithStock.Contains(item.ItemId))
+                        {
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@item.ItemId" class="d-inline" onsubmit="return confirm('Delete this item?');">
+                                <button type="submit" class="btn-icon" title="Delete" aria-label="Delete"><partial name="_Icon" model="@("x-lg")" /></button>
+                            </form>
+                        }
                     </td>
                 </tr>
             }
