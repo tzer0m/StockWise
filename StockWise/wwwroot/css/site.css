@@ -240,6 +240,59 @@ button.btn-icon {
     color: #1c1b1a;
 }
 
+/* Horizontal form rows: a fixed-width label on the left, the input filling the rest on the right. */
+.form-row {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+
+.form-row > .form-label {
+    flex: 0 0 8.5rem;
+    padding-top: .375rem;
+    margin-bottom: 0;
+}
+
+.form-row > .form-row-control {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+/* Server-side validation messages and invalid-field styling (no client script dependency). */
+.field-validation-error {
+    display: block;
+    margin-top: .25rem;
+    font-size: .85rem;
+    color: var(--sw-red-light);
+}
+
+.field-validation-valid {
+    display: none;
+}
+
+.input-validation-error {
+    border-color: var(--sw-red-light) !important;
+}
+
+.validation-summary-errors ul {
+    margin-bottom: 0;
+    padding-left: 1.1rem;
+}
+
+.validation-summary-valid {
+    display: none;
+}
+
+/* Makes fields that depend on a toggle clearly look disabled, not just the input itself. */
+.is-openable-disabled {
+    opacity: .45;
+}
+
+.is-openable-disabled label {
+    color: var(--sw-muted);
+}
+
 @media (max-width: 767.98px) {
     .table-cards, .table-cards tbody, .table-cards tbody tr, .table-cards tbody td {
         display: block;

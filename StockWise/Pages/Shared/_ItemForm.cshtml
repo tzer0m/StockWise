@@ -1,0 +1,87 @@
+@model StockWise.Models.ItemFormInput
+@{
+    bool barcodeReadOnly = ViewData["BarcodeReadOnly"] as bool? ?? false;
+}
+
+<div class="form-row">
+    <label asp-for="Barcode" class="form-label">Barcode</label>
+    <div class="form-row-control">
+        @if (barcodeReadOnly)
+        {
+            <input asp-for="Barcode" class="form-control" readonly />
+        }
+        else
+        {
+            <input asp-for="Barcode" class="form-control" autofocus required />
+            <span asp-validation-for="Barcode" class="field-validation-error"></span>
+        }
+    </div>
+</div>
+<div class="form-row">
+    <label asp-for="Name" class="form-label">Name</label>
+    <div class="form-row-control">
+        @if (barcodeReadOnly)
+        {
+            <input asp-for="Name" class="form-control" autocapitalize="words" autofocus required />
+        }
+        else
+        {
+            <input asp-for="Name" class="form-control" autocapitalize="words" required />
+        }
+        <span asp-validation-for="Name" class="field-validation-error"></span>
+    </div>
+</div>
+<div class="form-row">
+    <label asp-for="Brand" class="form-label">Brand</label>
+    <div class="form-row-control">
+        <input asp-for="Brand" class="form-control" autocapitalize="words" required />
+        <span asp-validation-for="Brand" class="field-validation-error"></span>
+    </div>
+</div>
+<div class="form-row">
+    <label asp-for="ImageUrl" class="form-label">Image URL</label>
+    <div class="form-row-control">
+        <input asp-for="ImageUrl" class="form-control" />
+    </div>
+</div>
+<div class="form-row">
+    <label asp-for="IsOpenable" class="form-label">Openable?</label>
+    <div class="form-row-control">
+        <div class="form-check form-switch">
+            <input asp-for="IsOpenable" class="form-check-input openable-toggle" role="switch" />
+        </div>
+    </div>
+</div>
+<div class="form-row openable-row">
+    <label asp-for="ExpiryAfterOpeningDays" class="form-label">Expires After (Days)</label>
+    <div class="form-row-control">
+        <input asp-for="ExpiryAfterOpeningDays" class="form-control openable-dependent" type="number" min="0" required />
+        <span asp-validation-for="ExpiryAfterOpeningDays" class="field-validation-error"></span>
+    </div>
+</div>
+
+<span asp-validation-for="CategoryAllowances" class="field-validation-error d-block mb-2"></span>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Unopened</th>
+            <th class="openable-col-header">Opened</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < Model.CategoryAllowances.Count; i++)
+        {
+            <tr>
+                <td>
+                    @Model.CategoryAllowances[i].CategoryName
+                    <input type="hidden" asp-for="CategoryAllowances[i].CategoryId" />
+                    <input type="hidden" asp-for="CategoryAllowances[i].CategoryName" />
+                </td>
+                <td><input asp-for="CategoryAllowances[i].AllowedWhenUnopened" /></td>
+                <td><input asp-for="CategoryAllowances[i].AllowedWhenOpened" class="openable-dependent" /></td>
+            </tr>
+        }
+    </tbody>
+</table>

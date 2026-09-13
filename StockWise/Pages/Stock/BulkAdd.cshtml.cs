@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -48,12 +49,14 @@ namespace StockWise.Pages.Stock
         /// The location to add stock at.
         /// </summary>
         [BindProperty]
+        [Range(1, int.MaxValue, ErrorMessage = "Select a location.")]
         public int LocationId { get; set; }
 
         /// <summary>
         /// The quantity to add.
         /// </summary>
         [BindProperty]
+        [Range(1, int.MaxValue, ErrorMessage = "Enter a quantity of at least 1.")]
         public int Quantity { get; set; } = 1;
 
         /// <summary>
@@ -63,46 +66,15 @@ namespace StockWise.Pages.Stock
         public DateOnly? Expiry { get; set; }
 
         /// <summary>
-        /// The barcode for a new item, when the current barcode is unknown.
+        /// The fields for a new item, when the current barcode is unknown.
         /// </summary>
         [BindProperty]
-        public string NewItemBarcode { get; set; } = string.Empty;
+        public ItemFormInput NewItem { get; set; } = new();
 
         /// <summary>
-        /// The display name for a new item, when the current barcode is unknown.
+        /// TEMPORARY: a dump of every ModelState entry and its validation state, for diagnosing why the Add Stock handler thinks the form is invalid.
         /// </summary>
-        [BindProperty]
-        public string NewItemName { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The brand for the new item, when the current barcode is unknown.
-        /// </summary>
-        [BindProperty]
-        public string? NewItemBrand { get; set; }
-
-        /// <summary>
-        /// A URL to an image of the new item, when the current barcode is unknown.
-        /// </summary>
-        [BindProperty]
-        public string? NewItemImageUrl { get; set; }
-
-        /// <summary>
-        /// Whether the new item can be opened, when the current barcode is unknown.
-        /// </summary>
-        [BindProperty]
-        public bool NewItemIsOpenable { get; set; }
-
-        /// <summary>
-        /// How many days after opening the new item expires, when the current barcode is unknown.
-        /// </summary>
-        [BindProperty]
-        public int? NewItemExpiryAfterOpeningDays { get; set; }
-
-        /// <summary>
-        /// The category allowances chosen for the new item, when the current barcode is unknown.
-        /// </summary>
-        [BindProperty]
-        public List<CategoryAllowance> NewItemCategoryAllowances { get; set; } = [];
+        public string? DebugModelState { get; set; }
 
         /// <summary>
         /// Loads the scan page if no batch is in progress, otherwise the next item in the batch to review.
@@ -131,6 +103,15 @@ namespace StockWise.Pages.Stock
                 return RedirectToPage("/Index");
             }
 
+            RemoveModelStateExcept(nameof(LocationId), nameof(Quantity), nameof(Expiry));
+
+            if (!ModelState.IsValid)
+            {
+                DebugModelState = string.Join(" | ", ModelState.Select(x => $"{x.Key}={x.Value!.ValidationState}:[{string.Join(';', x.Value.Errors.Select(e => e.ErrorMessage))}]"));
+                await LoadDisplayContextAsync(entries);
+                return Page();
+            }
+
             await stockService.AddOrMergeAsync(itemId, LocationId, Quantity, Expiry);
             return AdvanceToNext(entries);
         }
@@ -140,13 +121,21 @@ namespace StockWise.Pages.Stock
         /// </summary>
         public async Task<IActionResult> OnPostAddItemAsync()
         {
+            List<(string Barcode, int Quantity)> entries = ParseEntries(Batch);
+
+            RemoveModelStateExcept(nameof(NewItem));
+
             if (!ModelState.IsValid)
             {
-                await OnGetAsync();
+                if (entries.Count > 0)
+                {
+                    await LoadDisplayContextAsync(entries);
+                }
+
                 return Page();
             }
 
-            await itemService.CreateAsync(NewItemBarcode, NewItemName, NewItemBrand, NewItemImageUrl, NewItemIsOpenable, NewItemExpiryAfterOpeningDays, NewItemCategoryAllowances);
+            await itemService.CreateAsync(NewItem);
             return RedirectToPage(new { Batch });
         }
 
@@ -177,8 +166,36 @@ namespace StockWise.Pages.Stock
                 return;
             }
 
-            NewItemBarcode = current.Barcode;
-            NewItemCategoryAllowances = await itemService.GetCategoryAllowancesAsync();
+            NewItem = new ItemFormInput { Barcode = current.Barcode, CategoryAllowances = await itemService.GetCategoryAllowancesAsync() };
+        }
+
+        /// <summary>
+        /// Removes every ModelState entry that isn't for one of the given top-level properties (or a nested member of one), so validation errors from a different form on this page can't block submission of this one.
+        /// </summary>
+        /// <param name="propertyNames">The top-level bound property names whose entries, and nested members, should be kept.</param>
+        private void RemoveModelStateExcept(params string[] propertyNames)
+        {
+            foreach (string key in ModelState.Keys.Where(x => !propertyNames.Any(p => x == p || x.StartsWith(p + ".") || x.StartsWith(p + "["))).ToList())
+            {
+                ModelState.Remove(key);
+            }
+        }
+
+        /// <summary>
+        /// Reloads just the current barcode, remaining count, and matching item/locations, for redisplaying this step after a failed validation without overwriting any of the values just posted.
+        /// </summary>
+        /// <param name="entries">The parsed batch entries.</param>
+        private async Task LoadDisplayContextAsync(List<(string Barcode, int Quantity)> entries)
+        {
+            (string Barcode, int Quantity) current = entries[0];
+            CurrentBarcode = current.Barcode;
+            RemainingCount = entries.Count;
+
+            Item = await itemService.FindByBarcodeAsync(current.Barcode);
+            if (Item is not null)
+            {
+                AllowedLocations = await itemService.GetAllowedLocationsAsync(Item);
+            }
         }
 
         /// <summary>

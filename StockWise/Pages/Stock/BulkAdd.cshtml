@@ -1,15 +1,11 @@
 @page
 @model StockWise.Pages.Stock.BulkAddModel
 @{
-    ViewData["Title"] = "Bulk add stock";
+    ViewData["Title"] = "Bulk Add Stock";
 }
-
-<h1>Bulk add stock</h1>
 
 @if (string.IsNullOrWhiteSpace(Model.Batch))
 {
-    <p class="text-muted">Scan barcodes one after another, then review and add them all to your inventory.</p>
-
     <div class="mb-3">
         <input id="bulkBarcodeInput" class="form-control" autofocus autocomplete="off" placeholder="Scan a barcode..." />
     </div>
@@ -18,105 +14,78 @@
 
     <form method="get">
         <input type="hidden" name="batch" id="bulkBatchInput" />
-        <button type="submit" class="btn btn-primary" id="bulkReviewButton" disabled>Review &amp; add stock</button>
+        <button type="submit" class="btn btn-primary" id="bulkReviewButton" disabled>Review & Add</button>
     </form>
 
     <script type="application/json" id="bulkItemLookup">@Html.Raw(Model.ItemLookupJson)</script>
 }
 else
 {
-    <p class="text-muted">@Model.RemainingCount item@(Model.RemainingCount == 1 ? "" : "s") left in this batch.</p>
+    <p class="text-muted">@Model.RemainingCount item@(Model.RemainingCount == 1 ? "" : "s") remaining.</p>
 
     @if (Model.Item is not null)
     {
         <h2 class="h4">@Model.Item.Name</h2>
 
-        <form method="post" asp-page-handler="AddStock">
+        <form method="post" asp-page-handler="AddStock" id="bulkStockForm">
             <input type="hidden" asp-for="Batch" />
             <input type="hidden" name="itemId" value="@Model.Item.ItemId" />
-            <div class="mb-3">
+            <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
+            @if (Model.DebugModelState is not null)
+            {
+                <div class="alert alert-warning small">@Model.DebugModelState</div>
+            }
+            <div class="form-row">
                 <label asp-for="LocationId" class="form-label">Location</label>
-                <select asp-for="LocationId" class="form-select" data-expiry-target="Expiry">
-                    <option value="">-- Select a location --</option>
-                    @foreach (StockWise.Models.Location location in Model.AllowedLocations)
-                    {
-                        <option value="@location.LocationId" data-category="@location.Category?.Name">@location.Category?.Name - @location.Name</option>
-                    }
-                </select>
+                <div class="form-row-control">
+                    <select asp-for="LocationId" class="form-select" data-expiry-target="Expiry" required>
+                        <option value="">-- Select a location --</option>
+                        @foreach (StockWise.Models.Location location in Model.AllowedLocations)
+                        {
+                            <option value="@location.LocationId" data-category="@location.Category?.Name">@location.Category?.Name - @location.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="LocationId" class="field-validation-error"></span>
+                </div>
             </div>
-            <div class="mb-3">
+            <div class="form-row">
                 <label asp-for="Quantity" class="form-label">Quantity</label>
-                <input asp-for="Quantity" class="form-control" type="number" min="1" />
+                <div class="form-row-control">
+                    <input asp-for="Quantity" class="form-control" type="number" min="1" required />
+                    <span asp-validation-for="Quantity" class="field-validation-error"></span>
+                </div>
             </div>
-            <div class="mb-3">
+            <div class="form-row">
                 <label asp-for="Expiry" class="form-label">Expiry</label>
-                <input asp-for="Expiry" class="form-control" type="date" />
+                <div class="form-row-control">
+                    <input asp-for="Expiry" class="form-control" type="date" />
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Add stock</button>
         </form>
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-primary flex-fill" onclick="document.getElementById('bulkStockForm').requestSubmit();">Add Stock</button>
+            <button type="button" class="btn btn-outline-secondary flex-fill" onclick="document.getElementById('bulkSkipForm').requestSubmit();">Skip</button>
+        </div>
     }
     else
     {
         <div class="alert alert-warning">No item found for barcode "@Model.CurrentBarcode".</div>
 
-        <form method="post" asp-page-handler="AddItem">
+        <form method="post" asp-page-handler="AddItem" id="bulkItemForm">
             <input type="hidden" asp-for="Batch" />
-            <div class="mb-3">
-                <label asp-for="NewItemBarcode" class="form-label">Barcode</label>
-                <input asp-for="NewItemBarcode" class="form-control" readonly />
-            </div>
-            <div class="mb-3">
-                <label asp-for="NewItemName" class="form-label">Name</label>
-                <input asp-for="NewItemName" class="form-control" autocapitalize="words" autofocus />
-            </div>
-            <div class="mb-3">
-                <label asp-for="NewItemBrand" class="form-label">Brand</label>
-                <input asp-for="NewItemBrand" class="form-control" autocapitalize="words" />
-            </div>
-            <div class="mb-3">
-                <label asp-for="NewItemImageUrl" class="form-label">Image URL</label>
-                <input asp-for="NewItemImageUrl" class="form-control" />
-            </div>
-            <div class="mb-3 form-check">
-                <input asp-for="NewItemIsOpenable" class="form-check-input openable-toggle" />
-                <label asp-for="NewItemIsOpenable" class="form-check-label">Can be opened</label>
-            </div>
-            <div class="mb-3">
-                <label asp-for="NewItemExpiryAfterOpeningDays" class="form-label">Expiry after opening (days)</label>
-                <input asp-for="NewItemExpiryAfterOpeningDays" class="form-control openable-dependent" type="number" min="0" />
-            </div>
-
-            <h2 class="h5">Allowed categories</h2>
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Unopened</th>
-                        <th>Opened</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (int i = 0; i < Model.NewItemCategoryAllowances.Count; i++)
-                    {
-                        <tr>
-                            <td>
-                                @Model.NewItemCategoryAllowances[i].CategoryName
-                                <input type="hidden" asp-for="NewItemCategoryAllowances[i].CategoryId" />
-                                <input type="hidden" asp-for="NewItemCategoryAllowances[i].CategoryName" />
-                            </td>
-                            <td><input asp-for="NewItemCategoryAllowances[i].AllowedWhenUnopened" /></td>
-                            <td><input asp-for="NewItemCategoryAllowances[i].AllowedWhenOpened" class="openable-dependent" /></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-            <button type="submit" class="btn btn-primary">Add item &amp; continue</button>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+            @{ ViewData["BarcodeReadOnly"] = true; }
+            <partial name="_ItemForm" for="NewItem" />
         </form>
+
+        <div class="d-flex gap-2 mt-3">
+            <button type="button" class="btn btn-primary flex-fill" onclick="document.getElementById('bulkItemForm').requestSubmit();">Continue</button>
+            <button type="button" class="btn btn-outline-secondary flex-fill" onclick="document.getElementById('bulkSkipForm').requestSubmit();">Skip</button>
+        </div>
     }
 
-    <form method="post" asp-page-handler="Skip" class="mt-3">
+    <form method="post" asp-page-handler="Skip" id="bulkSkipForm">
         <input type="hidden" asp-for="Batch" />
-        <button type="submit" class="btn btn-outline-secondary btn-sm">Skip this item</button>
     </form>
 }

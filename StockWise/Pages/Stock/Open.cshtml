@@ -1,14 +1,14 @@
 @page "{id:int}"
 @model StockWise.Pages.Stock.OpenModel
 @{
-    ViewData["Title"] = "Open item";
+    ViewData["Title"] = "Open Item";
 }
 
 <h1>Open @Model.Stock?.Item?.Name</h1>
 
 <form method="post">
     <div class="mb-3">
-        <label asp-for="LocationId" class="form-label">New location</label>
+        <label asp-for="LocationId" class="form-label">New Location</label>
         <select asp-for="LocationId" class="form-select" data-expiry-target="Expiry">
             <option value="">-- Select a location --</option>
             @foreach (StockWise.Models.Location location in Model.AllowedLocations)
@@ -18,7 +18,7 @@
         </select>
     </div>
     <div class="mb-3">
-        <label asp-for="Expiry" class="form-label">New expiry</label>
+        <label asp-for="Expiry" class="form-label">New Expiry</label>
         <input asp-for="Expiry" class="form-control" type="date" />
     </div>
     <button type="submit" class="btn btn-primary">Open</button>

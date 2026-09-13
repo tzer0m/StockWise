@@ -51,17 +51,11 @@ namespace StockWise.Services
         /// <summary>
         /// Creates a new item along with its storage category allowances.
         /// </summary>
-        /// <param name="barcode">The item's barcode.</param>
-        /// <param name="name">The item's display name.</param>
-        /// <param name="brand">The item's brand, if known.</param>
-        /// <param name="imageUrl">A URL to an image of the item, if any.</param>
-        /// <param name="isOpenable">Whether a unit of this item can be opened.</param>
-        /// <param name="expiryAfterOpeningDays">How many days after opening this item expires, if it's openable.</param>
-        /// <param name="categoryAllowances">The category allowances chosen for the item.</param>
-        public async Task<Item> CreateAsync(string barcode, string name, string? brand, string? imageUrl, bool isOpenable, int? expiryAfterOpeningDays, List<CategoryAllowance> categoryAllowances)
+        /// <param name="input">The item's fields, as submitted on the form.</param>
+        public async Task<Item> CreateAsync(ItemFormInput input)
         {
-            Item item = new() { Barcode = barcode.Trim(), Name = name.Trim(), Brand = brand, ImageUrl = imageUrl, IsOpenable = isOpenable, ExpiryAfterOpeningDays = isOpenable ? expiryAfterOpeningDays : null, CreatedAt = DateTime.UtcNow };
-            ApplyCategoryAllowances(item, categoryAllowances, isOpenable);
+            Item item = new() { Barcode = input.Barcode.Trim(), Name = input.Name.Trim(), Brand = input.Brand, ImageUrl = input.ImageUrl, IsOpenable = input.IsOpenable, ExpiryAfterOpeningDays = input.IsOpenable ? input.ExpiryAfterOpeningDays : null, CreatedAt = DateTime.UtcNow };
+            ApplyCategoryAllowances(item, input.CategoryAllowances, input.IsOpenable);
             db.Items.Add(item);
             await db.SaveChangesAsync();
             return item;
@@ -71,23 +65,17 @@ namespace StockWise.Services
         /// Updates an existing item's details and replaces its storage category allowances.
         /// </summary>
         /// <param name="item">The item to update.</param>
-        /// <param name="barcode">The item's barcode.</param>
-        /// <param name="name">The item's display name.</param>
-        /// <param name="brand">The item's brand, if known.</param>
-        /// <param name="imageUrl">A URL to an image of the item, if any.</param>
-        /// <param name="isOpenable">Whether a unit of this item can be opened.</param>
-        /// <param name="expiryAfterOpeningDays">How many days after opening this item expires, if it's openable.</param>
-        /// <param name="categoryAllowances">The category allowances chosen for the item.</param>
-        public async Task UpdateAsync(Item item, string barcode, string name, string? brand, string? imageUrl, bool isOpenable, int? expiryAfterOpeningDays, List<CategoryAllowance> categoryAllowances)
+        /// <param name="input">The item's fields, as submitted on the form.</param>
+        public async Task UpdateAsync(Item item, ItemFormInput input)
         {
-            item.Barcode = barcode.Trim();
-            item.Name = name.Trim();
-            item.Brand = brand;
-            item.ImageUrl = imageUrl;
-            item.IsOpenable = isOpenable;
-            item.ExpiryAfterOpeningDays = isOpenable ? expiryAfterOpeningDays : null;
+            item.Barcode = input.Barcode.Trim();
+            item.Name = input.Name.Trim();
+            item.Brand = input.Brand;
+            item.ImageUrl = input.ImageUrl;
+            item.IsOpenable = input.IsOpenable;
+            item.ExpiryAfterOpeningDays = input.IsOpenable ? input.ExpiryAfterOpeningDays : null;
             item.ItemStorageCategories.Clear();
-            ApplyCategoryAllowances(item, categoryAllowances, isOpenable);
+            ApplyCategoryAllowances(item, input.CategoryAllowances, input.IsOpenable);
             await db.SaveChangesAsync();
         }
 

@@ -15,8 +15,8 @@
     @if (Model.ScannedItem is null)
     {
         <div class="alert alert-warning">
-            No item found for barcode "@Model.Barcode".
-            <a asp-page="/Manage/Items/Add" asp-route-barcode="@Model.Barcode">Add new item</a>
+            "@Model.Barcode" not found.
+            <a asp-page="/Manage/Items/Add" asp-route-barcode="@Model.Barcode">Add</a>
         </div>
     }
     else
@@ -26,8 +26,8 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="h4 mb-0">@Model.ScannedItem.Name</h2>
                     <div>
-                        <a asp-page="/Stock/Add" asp-route-barcode="@Model.Barcode" class="btn btn-primary btn-sm"><partial name="_Icon" model="@("plus-lg")" />Add stock</a>
-                        <a asp-page="/Manage/Items/Edit" asp-route-id="@Model.ScannedItem.ItemId" class="btn btn-outline-secondary btn-sm"><partial name="_Icon" model="@("pencil")" />Edit item</a>
+                        <a asp-page="/Stock/Add" asp-route-barcode="@Model.Barcode" class="btn btn-primary btn-sm"><partial name="_Icon" model="@("plus-lg")" />Add Stock</a>
+                        <a asp-page="/Manage/Items/Edit" asp-route-id="@Model.ScannedItem.ItemId" class="btn btn-outline-secondary btn-sm"><partial name="_Icon" model="@("pencil")" />Edit Item</a>
                     </div>
                 </div>
 

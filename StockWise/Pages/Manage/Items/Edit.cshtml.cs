@@ -18,46 +18,10 @@ namespace StockWise.Pages.Manage.Items
         public int ItemId { get; set; }
 
         /// <summary>
-        /// The item's barcode.
+        /// The item's fields.
         /// </summary>
         [BindProperty]
-        public string Barcode { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The item's display name.
-        /// </summary>
-        [BindProperty]
-        public string Name { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The item's brand, if known.
-        /// </summary>
-        [BindProperty]
-        public string? Brand { get; set; }
-
-        /// <summary>
-        /// A URL to an image of the item.
-        /// </summary>
-        [BindProperty]
-        public string? ImageUrl { get; set; }
-
-        /// <summary>
-        /// Whether a unit of this item can be opened.
-        /// </summary>
-        [BindProperty]
-        public bool IsOpenable { get; set; }
-
-        /// <summary>
-        /// How many days after opening this item expires, used to default the expiry date when it's opened.
-        /// </summary>
-        [BindProperty]
-        public int? ExpiryAfterOpeningDays { get; set; }
-
-        /// <summary>
-        /// The category allowances the user has chosen for this item.
-        /// </summary>
-        [BindProperty]
-        public List<CategoryAllowance> CategoryAllowances { get; set; } = [];
+        public ItemFormInput Input { get; set; } = new();
 
         /// <summary>
         /// Loads the item to edit.
@@ -72,13 +36,7 @@ namespace StockWise.Pages.Manage.Items
             }
 
             ItemId = item.ItemId;
-            Barcode = item.Barcode;
-            Name = item.Name;
-            Brand = item.Brand;
-            ImageUrl = item.ImageUrl;
-            IsOpenable = item.IsOpenable;
-            ExpiryAfterOpeningDays = item.ExpiryAfterOpeningDays;
-            CategoryAllowances = await itemService.GetCategoryAllowancesAsync(item);
+            Input = new ItemFormInput { Barcode = item.Barcode, Name = item.Name, Brand = item.Brand, ImageUrl = item.ImageUrl, IsOpenable = item.IsOpenable, ExpiryAfterOpeningDays = item.ExpiryAfterOpeningDays, CategoryAllowances = await itemService.GetCategoryAllowancesAsync(item) };
             return Page();
         }
 
@@ -98,7 +56,7 @@ namespace StockWise.Pages.Manage.Items
                 return NotFound();
             }
 
-            await itemService.UpdateAsync(item, Barcode, Name, Brand, ImageUrl, IsOpenable, ExpiryAfterOpeningDays, CategoryAllowances);
+            await itemService.UpdateAsync(item, Input);
             return RedirectToPage("Index");
         }
     }

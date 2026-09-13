@@ -36,12 +36,22 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     var dependents = document.querySelectorAll('.openable-dependent');
+    var dependentHeaders = document.querySelectorAll('.openable-col-header');
     function syncOpenableDependents() {
         dependents.forEach(function (element) {
             element.disabled = !isOpenable.checked;
             if (element.disabled && element.type === 'checkbox') {
                 element.checked = false;
             }
+
+            var container = element.closest('.form-row, td');
+            if (container) {
+                container.classList.toggle('is-openable-disabled', element.disabled);
+            }
+        });
+
+        dependentHeaders.forEach(function (header) {
+            header.classList.toggle('is-openable-disabled', !isOpenable.checked);
         });
     }
 
