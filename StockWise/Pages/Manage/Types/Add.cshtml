@@ -1,0 +1,16 @@
+@page
+@model StockWise.Pages.Manage.Types.AddModel
+@{
+    ViewData["Title"] = "Add Type";
+}
+
+<form method="post">
+    <div class="form-row">
+        <label asp-for="Type.Name" class="form-label">Name</label>
+        <div class="form-row-control">
+            <input asp-for="Type.Name" class="form-control" autocapitalize="words" autofocus required />
+            <span asp-validation-for="Type.Name" class="field-validation-error"></span>
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Add Type</button>
+</form>

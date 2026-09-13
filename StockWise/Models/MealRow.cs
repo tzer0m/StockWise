@@ -40,5 +40,10 @@ namespace StockWise.Models
         /// Always null - a meal batch is never "opened".
         /// </summary>
         public DateTime? OpenedAt => null;
+
+        /// <summary>
+        /// Always "Meals", used for the home page's type filter buttons.
+        /// </summary>
+        public string TypeName => "Meals";
     }
 }

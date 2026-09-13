@@ -166,6 +166,44 @@ a.navbar-brand {
     border-left: 3px solid var(--cat-color);
 }
 
+/* Home page type-filter buttons, positioned between the barcode scan section and the combined inventory table. */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.filter-btn {
+    display: inline-block;
+    padding: .35rem .9rem;
+    border-radius: .5rem;
+    background-color: var(--sw-surface-raised);
+    border: 1px solid var(--sw-border);
+    color: var(--sw-text);
+    text-decoration: none;
+    font-size: .9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.filter-btn:hover, .filter-btn:focus {
+    border-color: var(--sw-red-light);
+    color: var(--sw-red-light);
+}
+
+.filter-btn-active {
+    background-color: var(--sw-red);
+    border-color: var(--sw-red);
+    color: #fff;
+}
+
+.filter-btn-active:hover, .filter-btn-active:focus {
+    background-color: var(--sw-red-light);
+    border-color: var(--sw-red-light);
+    color: #fff;
+}
+
 .tile {
     display: inline-block;
     padding: .15rem .5rem;

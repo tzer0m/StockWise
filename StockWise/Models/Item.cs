@@ -26,6 +26,16 @@ namespace StockWise.Models
         public string? Brand { get; set; }
 
         /// <summary>
+        /// The ID of the item's type, if one has been assigned.
+        /// </summary>
+        public int? TypeId { get; set; }
+
+        /// <summary>
+        /// The item's type, if one has been assigned.
+        /// </summary>
+        public ItemType? Type { get; set; }
+
+        /// <summary>
         /// A URL to an image of the item.
         /// </summary>
         public string? ImageUrl { get; set; }

@@ -1,6 +1,8 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
 @model StockWise.Models.ItemFormInput
 @{
     bool barcodeReadOnly = ViewData["BarcodeReadOnly"] as bool? ?? false;
+    List<StockWise.Models.ItemType> availableTypes = ViewData["AvailableTypes"] as List<StockWise.Models.ItemType> ?? [];
 }
 
 <div class="form-row">
@@ -36,6 +38,15 @@
     <div class="form-row-control">
         <input asp-for="Brand" class="form-control" autocapitalize="words" required />
         <span asp-validation-for="Brand" class="field-validation-error"></span>
+    </div>
+</div>
+<div class="form-row">
+    <label asp-for="TypeId" class="form-label">Type</label>
+    <div class="form-row-control">
+        <select asp-for="TypeId" class="form-select" asp-items="@(new SelectList(availableTypes, "TypeId", "Name"))">
+            <option value="">Select a type...</option>
+        </select>
+        <span asp-validation-for="TypeId" class="field-validation-error"></span>
     </div>
 </div>
 <div class="form-row">

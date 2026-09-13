@@ -8,14 +8,14 @@ using StockWise.Services;
 namespace StockWise.Pages
 {
     /// <summary>
-    /// Page model for the home page: a barcode scan hub, plus a single sortable table combining all current stock and frozen meal batches.
+    /// Page model for the home page: a barcode scan hub, a set of type filter buttons, plus a single sortable table combining all current stock and frozen meal batches.
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="mealService">The meal service.</param>
     public class IndexModel(StockWiseDbContext db, MealService mealService) : PageModel
     {
         /// <summary>
-        /// All current stock and meal rows, sorted together.
+        /// All current stock and meal rows, sorted together and filtered by the selected types, if any.
         /// </summary>
         public List<IInventoryRow> AllRows { get; set; } = [];
 
@@ -36,6 +36,17 @@ namespace StockWise.Pages
         /// </summary>
         [BindProperty(SupportsGet = true)]
         public string Direction { get; set; } = "asc";
+
+        /// <summary>
+        /// The type names currently selected as filters. An empty list means no filter is applied.
+        /// </summary>
+        [BindProperty(SupportsGet = true)]
+        public List<string> Types { get; set; } = [];
+
+        /// <summary>
+        /// Every distinct type name present in the unfiltered row set, used to render the filter buttons.
+        /// </summary>
+        public List<string> AvailableTypeNames { get; set; } = [];
 
         /// <summary>
         /// The item matching the scanned barcode, if found.
@@ -68,15 +79,18 @@ namespace StockWise.Pages
         public string? Message { get; set; }
 
         /// <summary>
-        /// Loads the sorted combined stock/meal rows, plus the scanned item or meal instance if a barcode was given.
+        /// Loads the sorted, type-filtered combined stock/meal rows, plus the scanned item or meal instance if a barcode was given.
         /// </summary>
         public async Task OnGetAsync()
         {
-            List<StockWise.Models.Stock> stockList = await db.Stock.Include(x => x.Item).Include(x => x.Location).ThenInclude(x => x!.Category).ToListAsync();
+            List<StockWise.Models.Stock> stockList = await db.Stock.Include(x => x.Item).ThenInclude(x => x!.Type).Include(x => x.Location).ThenInclude(x => x!.Category).ToListAsync();
             List<Meal> meals = await mealService.GetAllWithInstancesAsync();
 
             List<IInventoryRow> rows = [.. stockList.Select(x => new StockRow(x)), .. meals.Select(x => new MealRow(x))];
-            AllRows = ApplySort(rows, Sort, Direction == "desc");
+            AvailableTypeNames = [.. rows.Select(x => x.TypeName).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x)];
+
+            List<IInventoryRow> filteredRows = Types.Count == 0 ? rows : [.. rows.Where(x => Types.Contains(x.TypeName))];
+            AllRows = ApplySort(filteredRows, Sort, Direction == "desc");
 
             await LoadScannedItemAsync();
         }
@@ -99,7 +113,7 @@ namespace StockWise.Pages
                 await db.SaveChangesAsync();
             }
 
-            return RedirectToPage(new { Barcode, Sort, Direction });
+            return Redirect(BuildIndexUrl(includeBarcode: true, Types));
         }
 
         /// <summary>
@@ -121,7 +135,7 @@ namespace StockWise.Pages
                 await db.SaveChangesAsync();
             }
 
-            return RedirectToPage(new { Barcode, Sort, Direction });
+            return Redirect(BuildIndexUrl(includeBarcode: true, Types));
         }
 
         /// <summary>
@@ -137,7 +151,7 @@ namespace StockWise.Pages
                 await db.SaveChangesAsync();
             }
 
-            return RedirectToPage(new { Barcode, Sort, Direction });
+            return Redirect(BuildIndexUrl(includeBarcode: true, Types));
         }
 
         /// <summary>
@@ -147,7 +161,49 @@ namespace StockWise.Pages
         public async Task<IActionResult> OnPostEatAsync(Guid mealInstanceId)
         {
             await mealService.EatAsync(mealInstanceId);
-            return RedirectToPage(new { Sort, Direction });
+            return Redirect(BuildIndexUrl(includeBarcode: false, Types));
+        }
+
+        /// <summary>
+        /// Builds the URL for a type filter button: toggles the given type in or out of the current selection while preserving the barcode, sort, and direction, or clears every filter when no type is given, for the Reset button.
+        /// </summary>
+        /// <param name="typeName">The type to toggle, or null to reset every filter.</param>
+        public string BuildFilterUrl(string? typeName)
+        {
+            List<string> types = typeName is null ? [] : Types.Contains(typeName) ? [.. Types.Where(x => x != typeName)] : [.. Types, typeName];
+            return BuildIndexUrl(includeBarcode: true, types);
+        }
+
+        /// <summary>
+        /// Builds the URL for a column sort header: switches to the given column, toggling direction if it's already the active column, while preserving the barcode and selected type filters.
+        /// </summary>
+        /// <param name="column">The column to sort by.</param>
+        public string BuildSortUrl(string column)
+        {
+            string direction = Sort == column && Direction == "asc" ? "desc" : "asc";
+            return BuildIndexUrl(includeBarcode: true, Types, column, direction);
+        }
+
+        /// <summary>
+        /// Builds a URL back to the home page, manually assembling the query string so the type filter list survives as repeated "Types" parameters, which ASP.NET Core's route-value-based URL generation doesn't produce for a list value.
+        /// </summary>
+        /// <param name="includeBarcode">Whether to carry the current scanned barcode over.</param>
+        /// <param name="types">The type filters to include.</param>
+        /// <param name="sort">The sort column to use, or the current one if not given.</param>
+        /// <param name="direction">The sort direction to use, or the current one if not given.</param>
+        private string BuildIndexUrl(bool includeBarcode, List<string> types, string? sort = null, string? direction = null)
+        {
+            List<string> queryParts = [];
+            if (includeBarcode && !string.IsNullOrWhiteSpace(Barcode))
+            {
+                queryParts.Add($"Barcode={Uri.EscapeDataString(Barcode)}");
+            }
+
+            queryParts.Add($"Sort={Uri.EscapeDataString(sort ?? Sort)}");
+            queryParts.Add($"Direction={Uri.EscapeDataString(direction ?? Direction)}");
+            queryParts.AddRange(types.Select(x => $"Types={Uri.EscapeDataString(x)}"));
+
+            return "/Index?" + string.Join("&", queryParts);
         }
 
         /// <summary>

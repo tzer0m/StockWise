@@ -49,12 +49,20 @@ namespace StockWise.Services
         }
 
         /// <summary>
+        /// Returns every item type, ordered by name.
+        /// </summary>
+        public async Task<List<ItemType>> GetTypesAsync()
+        {
+            return await db.Types.OrderBy(x => x.Name).ToListAsync();
+        }
+
+        /// <summary>
         /// Creates a new item along with its storage category allowances.
         /// </summary>
         /// <param name="input">The item's fields, as submitted on the form.</param>
         public async Task<Item> CreateAsync(ItemFormInput input)
         {
-            Item item = new() { Barcode = input.Barcode.Trim(), Name = input.Name.Trim(), Brand = input.Brand, ImageUrl = input.ImageUrl, IsOpenable = input.IsOpenable, ExpiryAfterOpeningDays = input.IsOpenable ? input.ExpiryAfterOpeningDays : null, CreatedAt = DateTime.UtcNow };
+            Item item = new() { Barcode = input.Barcode.Trim(), Name = input.Name.Trim(), Brand = input.Brand, TypeId = input.TypeId, ImageUrl = input.ImageUrl, IsOpenable = input.IsOpenable, ExpiryAfterOpeningDays = input.IsOpenable ? input.ExpiryAfterOpeningDays : null, CreatedAt = DateTime.UtcNow };
             ApplyCategoryAllowances(item, input.CategoryAllowances, input.IsOpenable);
             db.Items.Add(item);
             await db.SaveChangesAsync();
@@ -71,6 +79,7 @@ namespace StockWise.Services
             item.Barcode = input.Barcode.Trim();
             item.Name = input.Name.Trim();
             item.Brand = input.Brand;
+            item.TypeId = input.TypeId;
             item.ImageUrl = input.ImageUrl;
             item.IsOpenable = input.IsOpenable;
             item.ExpiryAfterOpeningDays = input.IsOpenable ? input.ExpiryAfterOpeningDays : null;

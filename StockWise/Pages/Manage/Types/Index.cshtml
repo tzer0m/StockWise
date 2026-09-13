@@ -1,0 +1,47 @@
+@page
+@model StockWise.Pages.Manage.Types.IndexModel
+@{
+    ViewData["Title"] = "Types";
+}
+
+@if (Model.ErrorMessage is not null)
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<div class="d-flex justify-content-end mb-3">
+    <a asp-page="Add" class="btn btn-primary btn-sm"><partial name="_Icon" model="@("plus-lg")" />Add Type</a>
+</div>
+
+@if (Model.Types.Count == 0)
+{
+    <p>No types yet.</p>
+}
+else
+{
+    <table class="table table-cards">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (StockWise.Models.ItemType type in Model.Types)
+            {
+                <tr>
+                    <td class="cell-heading">@type.Name</td>
+                    <td class="action-cell">
+                        <a asp-page="Edit" asp-route-id="@type.TypeId" class="btn-icon" title="Edit" aria-label="Edit"><partial name="_Icon" model="@("pencil")" /></a>
+                        @if (!Model.TypeIdsInUse.Contains(type.TypeId))
+                        {
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@type.TypeId" class="d-inline" onsubmit="return confirm('Delete this type?');">
+                                <button type="submit" class="btn-icon" title="Delete" aria-label="Delete"><partial name="_Icon" model="@("x-lg")" /></button>
+                            </form>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

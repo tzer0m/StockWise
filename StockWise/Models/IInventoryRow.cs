@@ -39,5 +39,10 @@ namespace StockWise.Models
         /// When this row was opened, if applicable - always null for a meal row.
         /// </summary>
         DateTime? OpenedAt { get; }
+
+        /// <summary>
+        /// The row's type name, used for the home page's type filter buttons - the assigned item type for stock (empty if none is set), or "Meals" for a frozen meal batch.
+        /// </summary>
+        string TypeName { get; }
     }
 }

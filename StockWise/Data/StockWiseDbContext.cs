@@ -25,6 +25,11 @@ namespace StockWise.Data
         public DbSet<Item> Items => Set<Item>();
 
         /// <summary>
+        /// Item types.
+        /// </summary>
+        public DbSet<ItemType> Types => Set<ItemType>();
+
+        /// <summary>
         /// Item-to-category links.
         /// </summary>
         public DbSet<ItemStorageCategory> ItemStorageCategories => Set<ItemStorageCategory>();
@@ -52,6 +57,9 @@ namespace StockWise.Data
         {
             // StorageCategory's key is CategoryId, not the StorageCategoryId the key convention looks for.
             modelBuilder.Entity<StorageCategory>().HasKey(x => x.CategoryId);
+
+            // ItemType's key is TypeId, not the ItemTypeId the key convention looks for.
+            modelBuilder.Entity<ItemType>().HasKey(x => x.TypeId);
 
             // ItemStorageCategories has a composite primary key rather than a single Id column.
             modelBuilder.Entity<ItemStorageCategory>().HasKey(x => new { x.ItemId, x.CategoryId });

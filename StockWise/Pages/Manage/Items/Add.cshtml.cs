@@ -24,6 +24,7 @@ namespace StockWise.Pages.Manage.Items
         public async Task OnGetAsync(string? barcode)
         {
             Input = new ItemFormInput { Barcode = barcode ?? string.Empty, CategoryAllowances = await itemService.GetCategoryAllowancesAsync() };
+            ViewData["AvailableTypes"] = await itemService.GetTypesAsync();
         }
 
         /// <summary>
@@ -33,6 +34,7 @@ namespace StockWise.Pages.Manage.Items
         {
             if (!ModelState.IsValid)
             {
+                ViewData["AvailableTypes"] = await itemService.GetTypesAsync();
                 return Page();
             }
 

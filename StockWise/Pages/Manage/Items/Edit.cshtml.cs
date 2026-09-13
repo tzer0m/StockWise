@@ -36,7 +36,8 @@ namespace StockWise.Pages.Manage.Items
             }
 
             ItemId = item.ItemId;
-            Input = new ItemFormInput { Barcode = item.Barcode, Name = item.Name, Brand = item.Brand, ImageUrl = item.ImageUrl, IsOpenable = item.IsOpenable, ExpiryAfterOpeningDays = item.ExpiryAfterOpeningDays, CategoryAllowances = await itemService.GetCategoryAllowancesAsync(item) };
+            Input = new ItemFormInput { Barcode = item.Barcode, Name = item.Name, Brand = item.Brand, TypeId = item.TypeId ?? 0, ImageUrl = item.ImageUrl, IsOpenable = item.IsOpenable, ExpiryAfterOpeningDays = item.ExpiryAfterOpeningDays, CategoryAllowances = await itemService.GetCategoryAllowancesAsync(item) };
+            ViewData["AvailableTypes"] = await itemService.GetTypesAsync();
             return Page();
         }
 
@@ -47,6 +48,7 @@ namespace StockWise.Pages.Manage.Items
         {
             if (!ModelState.IsValid)
             {
+                ViewData["AvailableTypes"] = await itemService.GetTypesAsync();
                 return Page();
             }
 

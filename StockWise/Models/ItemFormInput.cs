@@ -26,6 +26,12 @@ namespace StockWise.Models
         public string? Brand { get; set; }
 
         /// <summary>
+        /// The ID of the item's type.
+        /// </summary>
+        [Range(1, int.MaxValue, ErrorMessage = "Select a type.")]
+        public int TypeId { get; set; }
+
+        /// <summary>
         /// A URL to an image of the item.
         /// </summary>
         public string? ImageUrl { get; set; }

@@ -152,6 +152,17 @@
     }
 }
 
+@if (Model.AvailableTypeNames.Count > 0)
+{
+    <div class="filter-bar mb-3">
+        <a href="@Model.BuildFilterUrl(null)" class="filter-btn @(Model.Types.Count == 0 ? "filter-btn-active" : "")">Reset</a>
+        @foreach (string typeName in Model.AvailableTypeNames)
+        {
+            <a href="@Model.BuildFilterUrl(typeName)" class="filter-btn @(Model.Types.Contains(typeName) ? "filter-btn-active" : "")">@typeName</a>
+        }
+    </div>
+}
+
 @if (Model.AllRows.Count == 0)
 {
     <p>No stock currently held.</p>
@@ -161,12 +172,12 @@ else
     <table class="table table-cards table-cards-grid">
         <thead>
             <tr>
-                <th><a asp-page="/Index" asp-route-sort="item" asp-route-direction="@(Model.Sort == "item" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Item@(Model.Sort == "item" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
-                <th><a asp-page="/Index" asp-route-sort="brand" asp-route-direction="@(Model.Sort == "brand" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Brand@(Model.Sort == "brand" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
-                <th><a asp-page="/Index" asp-route-sort="location" asp-route-direction="@(Model.Sort == "location" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Location@(Model.Sort == "location" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
-                <th><a asp-page="/Index" asp-route-sort="quantity" asp-route-direction="@(Model.Sort == "quantity" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Quantity@(Model.Sort == "quantity" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
-                <th><a asp-page="/Index" asp-route-sort="expiry" asp-route-direction="@(Model.Sort == "expiry" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Expiry@(Model.Sort == "expiry" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
-                <th><a asp-page="/Index" asp-route-sort="opened" asp-route-direction="@(Model.Sort == "opened" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Opened@(Model.Sort == "opened" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a href="@Model.BuildSortUrl("item")" class="text-decoration-none">Item@(Model.Sort == "item" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a href="@Model.BuildSortUrl("brand")" class="text-decoration-none">Brand@(Model.Sort == "brand" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a href="@Model.BuildSortUrl("location")" class="text-decoration-none">Location@(Model.Sort == "location" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a href="@Model.BuildSortUrl("quantity")" class="text-decoration-none">Quantity@(Model.Sort == "quantity" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a href="@Model.BuildSortUrl("expiry")" class="text-decoration-none">Expiry@(Model.Sort == "expiry" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a href="@Model.BuildSortUrl("opened")" class="text-decoration-none">Opened@(Model.Sort == "opened" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th></th>
             </tr>
         </thead>

@@ -40,5 +40,10 @@ namespace StockWise.Models
         /// When this stock was opened, if it has been.
         /// </summary>
         public DateTime? OpenedAt => Stock.OpenedAt;
+
+        /// <summary>
+        /// The stocked item's type name, or empty if it hasn't been assigned one.
+        /// </summary>
+        public string TypeName => Stock.Item?.Type?.Name ?? string.Empty;
     }
 }
