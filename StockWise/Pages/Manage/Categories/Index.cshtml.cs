@@ -18,6 +18,18 @@ namespace StockWise.Pages.Manage.Categories
         public List<StorageCategory> Categories { get; set; } = [];
 
         /// <summary>
+        /// The column to sort the categories table by.
+        /// </summary>
+        [BindProperty(SupportsGet = true)]
+        public string Sort { get; set; } = "name";
+
+        /// <summary>
+        /// The sort direction: "asc" or "desc".
+        /// </summary>
+        [BindProperty(SupportsGet = true)]
+        public string Direction { get; set; } = "asc";
+
+        /// <summary>
         /// The name for a new category being added.
         /// </summary>
         [BindProperty]
@@ -40,7 +52,7 @@ namespace StockWise.Pages.Manage.Categories
         /// </summary>
         public async Task OnGetAsync()
         {
-            Categories = await db.StorageCategories.Include(x => x.Locations).OrderBy(x => x.Name).ToListAsync();
+            Categories = await ApplySort(db.StorageCategories.Include(x => x.Locations), Sort, Direction == "desc").ToListAsync();
         }
 
         /// <summary>
@@ -78,6 +90,22 @@ namespace StockWise.Pages.Manage.Categories
             }
 
             return RedirectToPage();
+        }
+
+        /// <summary>
+        /// Applies the requested sort to the categories query.
+        /// </summary>
+        /// <param name="query">The categories query to sort.</param>
+        /// <param name="sort">The column to sort by.</param>
+        /// <param name="descending">Whether to sort in descending order.</param>
+        private static IOrderedQueryable<StorageCategory> ApplySort(IQueryable<StorageCategory> query, string sort, bool descending)
+        {
+            return sort switch
+            {
+                "color" => descending ? query.OrderByDescending(x => x.Color) : query.OrderBy(x => x.Color),
+                "locations" => descending ? query.OrderByDescending(x => x.Locations.Count) : query.OrderBy(x => x.Locations.Count),
+                _ => descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name),
+            };
         }
     }
 }

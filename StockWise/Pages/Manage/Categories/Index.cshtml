@@ -4,50 +4,47 @@
     ViewData["Title"] = "Categories";
 }
 
-<h1>Categories</h1>
-
 @if (Model.ErrorMessage is not null)
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Colour</th>
-            <th>Name</th>
-            <th>Locations</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (StockWise.Models.StorageCategory category in Model.Categories)
-        {
-            <tr>
-                <td><span class="d-inline-block rounded" style="width:1.5rem;height:1.5rem;background-color:@(category.Color ?? "#6c757d");"></span></td>
-                <td>@category.Name</td>
-                <td>@category.Locations.Count</td>
-                <td>
-                    <a asp-page="Edit" asp-route-id="@category.CategoryId">Edit</a>
-                    <form method="post" asp-page-handler="Delete" asp-route-id="@category.CategoryId" class="d-inline" onsubmit="return confirm('Delete this category?');">
-                        <button type="submit" class="btn btn-link text-danger p-0 ms-2">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<h2>Add Category</h2>
-
-<form method="post" asp-page-handler="Add">
-    <div class="mb-3">
-        <label asp-for="NewCategoryName" class="form-label">Name</label>
-        <input asp-for="NewCategoryName" class="form-control" autocapitalize="words" />
-    </div>
-    <div class="mb-3">
-        <label asp-for="NewCategoryColor" class="form-label">Colour</label>
-        <input asp-for="NewCategoryColor" type="color" class="form-control form-control-color" />
-    </div>
+<form method="post" asp-page-handler="Add" class="d-flex gap-2 mb-4">
+    <input asp-for="NewCategoryColor" type="color" class="form-control form-control-color" title="Colour" />
+    <input asp-for="NewCategoryName" class="form-control flex-grow-1" autocapitalize="words" placeholder="Name" />
     <button type="submit" class="btn btn-primary">Add</button>
 </form>
+
+@if (Model.Categories.Count == 0)
+{
+    <p>No categories yet.</p>
+}
+else
+{
+    <table class="table table-cards">
+        <thead>
+            <tr>
+                <th><a asp-page="Index" asp-route-sort="color" asp-route-direction="@(Model.Sort == "color" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Colour@(Model.Sort == "color" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a asp-page="Index" asp-route-sort="name" asp-route-direction="@(Model.Sort == "name" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Name@(Model.Sort == "name" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a asp-page="Index" asp-route-sort="locations" asp-route-direction="@(Model.Sort == "locations" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Locations@(Model.Sort == "locations" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (StockWise.Models.StorageCategory category in Model.Categories)
+            {
+                <tr>
+                    <td data-label="Colour"><span class="d-inline-block rounded" style="width:1.5rem;height:1.5rem;background-color:@(category.Color ?? "#6c757d");"></span></td>
+                    <td class="cell-heading">@category.Name</td>
+                    <td data-label="Locations">@category.Locations.Count</td>
+                    <td class="action-cell">
+                        <a asp-page="Edit" asp-route-id="@category.CategoryId" class="btn-icon" title="Edit" aria-label="Edit"><partial name="_Icon" model="@("pencil")" /></a>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@category.CategoryId" class="d-inline" onsubmit="return confirm('Delete this category?');">
+                            <button type="submit" class="btn-icon" title="Delete" aria-label="Delete"><partial name="_Icon" model="@("x-lg")" /></button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
