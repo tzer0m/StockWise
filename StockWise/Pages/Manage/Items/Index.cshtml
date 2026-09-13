@@ -20,6 +20,7 @@
         <tr>
             <th>Barcode</th>
             <th>Name</th>
+            <th>Brand</th>
             <th>Can be opened</th>
             <th></th>
         </tr>
@@ -30,6 +31,7 @@
             <tr>
                 <td>@item.Barcode</td>
                 <td>@item.Name</td>
+                <td>@item.Brand</td>
                 <td>@(item.IsOpenable ? "Yes" : "No")</td>
                 <td>
                     <a asp-page="Edit" asp-route-id="@item.ItemId">Edit</a>
