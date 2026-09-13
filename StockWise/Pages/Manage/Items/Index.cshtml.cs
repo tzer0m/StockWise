@@ -56,7 +56,7 @@ namespace StockWise.Pages.Manage.Items
         /// </summary>
         public async Task<IActionResult> OnGetAsync()
         {
-            Items = await ApplySort(db.Items, Sort, Direction == "desc").ToListAsync();
+            Items = await ApplySort(db.Items.Include(x => x.Type), Sort, Direction == "desc").ToListAsync();
             ItemIdsWithStock = await db.Stock.Select(x => x.ItemId).Distinct().ToHashSetAsync();
 
             if (!string.IsNullOrWhiteSpace(Barcode))
@@ -108,6 +108,7 @@ namespace StockWise.Pages.Manage.Items
             return sort switch
             {
                 "brand" => descending ? query.OrderByDescending(x => x.Brand) : query.OrderBy(x => x.Brand),
+                "type" => descending ? query.OrderByDescending(x => x.Type!.Name) : query.OrderBy(x => x.Type!.Name),
                 "barcode" => descending ? query.OrderByDescending(x => x.Barcode) : query.OrderBy(x => x.Barcode),
                 "openable" => descending ? query.OrderByDescending(x => x.IsOpenable) : query.OrderBy(x => x.IsOpenable),
                 _ => descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name),
