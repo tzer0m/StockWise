@@ -92,7 +92,7 @@
 }
 else
 {
-    <table class="table table-cards">
+    <table class="table table-cards table-cards-grid">
         <thead>
             <tr>
                 <th><a asp-page="/Index" asp-route-sort="item" asp-route-direction="@(Model.Sort == "item" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Item@(Model.Sort == "item" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
@@ -101,8 +101,6 @@ else
                 <th><a asp-page="/Index" asp-route-sort="quantity" asp-route-direction="@(Model.Sort == "quantity" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Quantity@(Model.Sort == "quantity" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th><a asp-page="/Index" asp-route-sort="expiry" asp-route-direction="@(Model.Sort == "expiry" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Expiry@(Model.Sort == "expiry" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
                 <th><a asp-page="/Index" asp-route-sort="opened" asp-route-direction="@(Model.Sort == "opened" && Model.Direction == "asc" ? "desc" : "asc")" asp-route-barcode="@Model.Barcode" class="text-decoration-none">Opened@(Model.Sort == "opened" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
-                <th></th>
-                <th></th>
                 <th></th>
             </tr>
         </thead>
@@ -146,13 +144,9 @@ else
                         {
                             <a asp-page="/Stock/Open" asp-route-id="@stock.StockId" class="btn-icon" title="Open" aria-label="Open"><partial name="_Icon" model="@("unlock")" /></a>
                         }
-                    </td>
-                    <td class="action-cell">
                         <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" class="d-inline">
                             <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1"><partial name="_Icon" model="@("dash-circle")" /></button>
                         </form>
-                    </td>
-                    <td class="action-cell">
                         @if (stock.OpenedAt is not null)
                         {
                             <form method="post" asp-page-handler="Finish" asp-route-stockId="@stock.StockId" class="d-inline">

@@ -320,4 +320,87 @@ button.btn-icon {
         margin-top: .4rem;
         padding: 0 .4rem .4rem 0;
     }
+
+    /* Bigger tap targets for the icon buttons (open/checkout/finish) on touch screens. */
+    .btn-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+    }
+
+    .btn-icon .icon {
+        width: 18px;
+        height: 18px;
+    }
+
+    /* Compact 2-column card grid, values only (no field labels), used for the home page's all-stock table. */
+    .table-cards-grid thead tr {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .table-cards-grid thead th {
+        text-align: center;
+        padding: .25rem .3rem;
+        font-size: .75rem;
+        white-space: normal;
+    }
+
+    .table-cards-grid tbody tr {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: .3rem .75rem;
+    }
+
+    .table-cards-grid tbody td[data-label] {
+        display: block;
+    }
+
+    .table-cards-grid tbody td[data-label]::before {
+        content: none;
+    }
+
+    .table-cards-grid tbody td.cell-heading {
+        grid-column: 1;
+        grid-row: 1;
+        padding-bottom: 0;
+    }
+
+    .table-cards-grid tbody td[data-label="Brand"] {
+        grid-column: 1;
+        grid-row: 2;
+        text-align: left;
+    }
+
+    .table-cards-grid tbody td[data-label="Expiry"] {
+        grid-column: 1;
+        grid-row: 3;
+        text-align: left;
+    }
+
+    .table-cards-grid tbody td[data-label="Quantity"] {
+        grid-column: 2;
+        grid-row: 1;
+        text-align: right;
+    }
+
+    .table-cards-grid tbody td[data-label="Location"] {
+        grid-column: 2;
+        grid-row: 2;
+        text-align: right;
+    }
+
+    .table-cards-grid tbody td[data-label="Opened"] {
+        grid-column: 2;
+        grid-row: 3;
+        text-align: right;
+    }
+
+    .table-cards-grid tbody td.action-cell {
+        grid-column: 1 / -1;
+        grid-row: 4;
+        display: flex;
+        gap: .4rem;
+        margin-top: .4rem;
+        padding: 0;
+    }
 }
