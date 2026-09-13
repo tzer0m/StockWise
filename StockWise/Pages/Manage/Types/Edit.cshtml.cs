@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Types
 {
@@ -9,7 +10,8 @@ namespace StockWise.Pages.Manage.Types
     /// Page model for renaming an item type.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class EditModel(StockWiseDbContext db) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class EditModel(StockWiseDbContext db, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// The type being edited.
@@ -46,6 +48,7 @@ namespace StockWise.Pages.Manage.Types
             db.Attach(Type);
             db.Entry(Type).Property(x => x.Name).IsModified = true;
             await db.SaveChangesAsync();
+            await historyService.LogTypeUpdatedAsync(Type.Name);
             return RedirectToPage("Index");
         }
     }

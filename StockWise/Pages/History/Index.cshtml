@@ -1,0 +1,30 @@
+@page
+@model StockWise.Pages.History.IndexModel
+@{
+    ViewData["Title"] = "History";
+}
+
+@if (Model.Events.Count == 0)
+{
+    <p>No history yet.</p>
+}
+else
+{
+    <table class="table table-cards">
+        <thead>
+            <tr>
+                <th><a asp-page="Index" asp-route-sort="timestamp" asp-route-direction="@(Model.Sort == "timestamp" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Timestamp@(Model.Sort == "timestamp" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a asp-page="Index" asp-route-sort="message" asp-route-direction="@(Model.Sort == "message" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Message@(Model.Sort == "message" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (StockWise.Models.History historyEvent in Model.Events)
+            {
+                <tr>
+                    <td class="cell-heading">@historyEvent.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td data-label="Event">@historyEvent.Message</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

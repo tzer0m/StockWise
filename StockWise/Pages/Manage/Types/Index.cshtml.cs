@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Types
 {
@@ -10,7 +11,8 @@ namespace StockWise.Pages.Manage.Types
     /// Page model for listing and deleting item types.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class IndexModel(StockWiseDbContext db) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class IndexModel(StockWiseDbContext db, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// All item types, ordered by name.
@@ -55,6 +57,7 @@ namespace StockWise.Pages.Manage.Types
             {
                 db.Types.Remove(type);
                 await db.SaveChangesAsync();
+                await historyService.LogTypeDeletedAsync(type.Name);
             }
 
             return RedirectToPage();

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Categories
 {
@@ -10,7 +11,8 @@ namespace StockWise.Pages.Manage.Categories
     /// Page model for listing, adding, and deleting storage categories.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class IndexModel(StockWiseDbContext db) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class IndexModel(StockWiseDbContext db, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// All storage categories, ordered by name, with their locations loaded.
@@ -64,6 +66,7 @@ namespace StockWise.Pages.Manage.Categories
             {
                 db.StorageCategories.Add(new StorageCategory { Name = NewCategoryName.Trim(), Color = NewCategoryColor });
                 await db.SaveChangesAsync();
+                await historyService.LogCategoryAddedAsync(NewCategoryName.Trim());
             }
 
             return RedirectToPage(new { Sort, Direction });
@@ -87,6 +90,7 @@ namespace StockWise.Pages.Manage.Categories
             {
                 db.StorageCategories.Remove(category);
                 await db.SaveChangesAsync();
+                await historyService.LogCategoryDeletedAsync(category.Name);
             }
 
             return RedirectToPage(new { Sort, Direction });

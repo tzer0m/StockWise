@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Stock
 {
@@ -11,7 +12,8 @@ namespace StockWise.Pages.Stock
     /// Page model for opening a unit of stock, moving it to a new location.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class OpenModel(StockWiseDbContext db) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class OpenModel(StockWiseDbContext db, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// The stock row being opened.
@@ -89,6 +91,9 @@ namespace StockWise.Pages.Stock
 
             db.Stock.Add(new StockWise.Models.Stock { ItemId = Stock.ItemId, LocationId = LocationId, Quantity = 1, Expiry = Expiry, AddedAt = DateTime.UtcNow, OpenedAt = DateTime.UtcNow });
             await db.SaveChangesAsync();
+
+            Location? newLocation = await db.Locations.FindAsync(LocationId);
+            await historyService.LogStockOpenedAsync(ItemTitle, newLocation?.Name ?? string.Empty);
             return RedirectToPage("/Index");
         }
 

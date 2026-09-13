@@ -12,7 +12,8 @@ namespace StockWise.Pages
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="mealService">The meal service.</param>
-    public class IndexModel(StockWiseDbContext db, MealService mealService) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class IndexModel(StockWiseDbContext db, MealService mealService, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// All current stock and meal rows, sorted together and filtered by the selected types, if any.
@@ -101,7 +102,7 @@ namespace StockWise.Pages
         /// <param name="stockId">The ID of the stock row to check out from.</param>
         public async Task<IActionResult> OnPostCheckoutAsync(int stockId)
         {
-            StockWise.Models.Stock? stock = await db.Stock.FindAsync(stockId);
+            StockWise.Models.Stock? stock = await db.Stock.Include(x => x.Item).Include(x => x.Location).FirstOrDefaultAsync(x => x.StockId == stockId);
             if (stock is not null)
             {
                 stock.Quantity--;
@@ -111,6 +112,7 @@ namespace StockWise.Pages
                 }
 
                 await db.SaveChangesAsync();
+                await historyService.LogStockCheckedOutAsync(stock.Item!.Name, 1, stock.Location!.Name);
             }
 
             return Redirect(BuildIndexUrl(includeBarcode: true, Types));
@@ -123,16 +125,18 @@ namespace StockWise.Pages
         /// <param name="quantity">The number of units to check out.</param>
         public async Task<IActionResult> OnPostCheckoutMultipleAsync(int stockId, int quantity)
         {
-            StockWise.Models.Stock? stock = await db.Stock.FindAsync(stockId);
+            StockWise.Models.Stock? stock = await db.Stock.Include(x => x.Item).Include(x => x.Location).FirstOrDefaultAsync(x => x.StockId == stockId);
             if (stock is not null && quantity > 0)
             {
-                stock.Quantity -= Math.Min(quantity, stock.Quantity);
+                int checkedOut = Math.Min(quantity, stock.Quantity);
+                stock.Quantity -= checkedOut;
                 if (stock.Quantity <= 0)
                 {
                     db.Stock.Remove(stock);
                 }
 
                 await db.SaveChangesAsync();
+                await historyService.LogStockCheckedOutAsync(stock.Item!.Name, checkedOut, stock.Location!.Name);
             }
 
             return Redirect(BuildIndexUrl(includeBarcode: true, Types));
@@ -144,11 +148,12 @@ namespace StockWise.Pages
         /// <param name="stockId">The ID of the stock row to finish.</param>
         public async Task<IActionResult> OnPostFinishAsync(int stockId)
         {
-            StockWise.Models.Stock? stock = await db.Stock.FindAsync(stockId);
+            StockWise.Models.Stock? stock = await db.Stock.Include(x => x.Item).Include(x => x.Location).FirstOrDefaultAsync(x => x.StockId == stockId);
             if (stock is not null)
             {
                 db.Stock.Remove(stock);
                 await db.SaveChangesAsync();
+                await historyService.LogStockFinishedAsync(stock.Item!.Name, stock.Location!.Name);
             }
 
             return Redirect(BuildIndexUrl(includeBarcode: true, Types));

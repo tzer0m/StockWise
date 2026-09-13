@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Locations
 {
@@ -12,7 +13,8 @@ namespace StockWise.Pages.Manage.Locations
     /// Page model for editing a storage location's name and category.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class EditModel(StockWiseDbContext db) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class EditModel(StockWiseDbContext db, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// The location being edited.
@@ -57,6 +59,7 @@ namespace StockWise.Pages.Manage.Locations
             entry.Property(x => x.Name).IsModified = true;
             entry.Property(x => x.CategoryId).IsModified = true;
             await db.SaveChangesAsync();
+            await historyService.LogLocationUpdatedAsync(Location.Name);
             return RedirectToPage("Index");
         }
 

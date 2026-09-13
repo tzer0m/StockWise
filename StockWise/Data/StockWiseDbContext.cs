@@ -50,6 +50,11 @@ namespace StockWise.Data
         public DbSet<MealInstance> MealInstances => Set<MealInstance>();
 
         /// <summary>
+        /// Logged history events.
+        /// </summary>
+        public DbSet<History> History => Set<History>();
+
+        /// <summary>
         /// Configures entity relationships and keys beyond what conventions infer.
         /// </summary>
         /// <param name="modelBuilder">The model builder.</param>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Types
 {
@@ -9,7 +10,8 @@ namespace StockWise.Pages.Manage.Types
     /// Page model for adding a new item type.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class AddModel(StockWiseDbContext db) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class AddModel(StockWiseDbContext db, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// The new type.
@@ -29,6 +31,7 @@ namespace StockWise.Pages.Manage.Types
 
             db.Types.Add(Type);
             await db.SaveChangesAsync();
+            await historyService.LogTypeAddedAsync(Type.Name);
             return RedirectToPage("Index");
         }
     }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Locations
 {
@@ -11,7 +12,8 @@ namespace StockWise.Pages.Manage.Locations
     /// Page model for listing, adding, and deleting storage locations.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class IndexModel(StockWiseDbContext db) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class IndexModel(StockWiseDbContext db, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// All storage locations, ordered by category then name.
@@ -70,6 +72,7 @@ namespace StockWise.Pages.Manage.Locations
             {
                 db.Locations.Add(new Location { CategoryId = NewLocationCategoryId, Name = NewLocationName.Trim() });
                 await db.SaveChangesAsync();
+                await historyService.LogLocationAddedAsync(NewLocationName.Trim());
             }
 
             return RedirectToPage(new { Sort, Direction });
@@ -93,6 +96,7 @@ namespace StockWise.Pages.Manage.Locations
             {
                 db.Locations.Remove(location);
                 await db.SaveChangesAsync();
+                await historyService.LogLocationDeletedAsync(location.Name);
             }
 
             return RedirectToPage(new { Sort, Direction });

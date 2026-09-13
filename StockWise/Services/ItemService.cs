@@ -8,7 +8,8 @@ namespace StockWise.Services
     /// Provides item lookup, creation, and editing logic shared across the pages that scan, add, edit, or bulk-add items.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class ItemService(StockWiseDbContext db)
+    /// <param name="historyService">The history service.</param>
+    public class ItemService(StockWiseDbContext db, HistoryService historyService)
     {
         /// <summary>
         /// Finds an item by its barcode, including its storage category allowances.
@@ -66,6 +67,7 @@ namespace StockWise.Services
             ApplyCategoryAllowances(item, input.CategoryAllowances, input.IsOpenable);
             db.Items.Add(item);
             await db.SaveChangesAsync();
+            await historyService.LogItemAddedAsync(item.Name);
             return item;
         }
 
@@ -86,6 +88,7 @@ namespace StockWise.Services
             item.ItemStorageCategories.Clear();
             ApplyCategoryAllowances(item, input.CategoryAllowances, input.IsOpenable);
             await db.SaveChangesAsync();
+            await historyService.LogItemUpdatedAsync(item.Name);
         }
 
         /// <summary>

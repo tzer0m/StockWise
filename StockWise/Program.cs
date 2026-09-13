@@ -10,6 +10,7 @@ using t0m.Ting;
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages(options => options.Conventions.AuthorizeFolder("/").AllowAnonymousToPage("/Error"));
 builder.Services.AddDbContext<StockWiseDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("StockWiseDb")));
+builder.Services.AddScoped<HistoryService>();
 builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<StockService>();
 builder.Services.AddScoped<MealService>();

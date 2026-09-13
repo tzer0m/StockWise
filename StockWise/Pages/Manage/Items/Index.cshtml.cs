@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Items
 {
@@ -10,7 +11,8 @@ namespace StockWise.Pages.Manage.Items
     /// Page model for listing and deleting trackable items, and for scanning a barcode to check whether it's already known or add it if not.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class IndexModel(StockWiseDbContext db) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class IndexModel(StockWiseDbContext db, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// All items, ordered by name.
@@ -92,6 +94,7 @@ namespace StockWise.Pages.Manage.Items
             {
                 db.Items.Remove(item);
                 await db.SaveChangesAsync();
+                await historyService.LogItemDeletedAsync(item.Name);
             }
 
             return RedirectToPage(new { Sort, Direction });

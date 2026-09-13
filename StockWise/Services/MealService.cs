@@ -9,7 +9,8 @@ namespace StockWise.Services
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="chitterClient">The client used to print meal labels.</param>
-    public class MealService(StockWiseDbContext db, ChitterClient chitterClient)
+    /// <param name="historyService">The history service.</param>
+    public class MealService(StockWiseDbContext db, ChitterClient chitterClient, HistoryService historyService)
     {
         /// <summary>
         /// Returns the freezer locations a new meal batch can be stored at, ordered by name.
@@ -42,6 +43,9 @@ namespace StockWise.Services
 
             db.Meals.Add(meal);
             await db.SaveChangesAsync();
+
+            Location? location = await db.Locations.FindAsync(locationId);
+            await historyService.LogMealAddedAsync(name, quantity, location?.Name ?? "the freezer");
             return true;
         }
 
@@ -60,12 +64,13 @@ namespace StockWise.Services
         /// <param name="mealInstanceId">The guid of the instance to eat.</param>
         public async Task EatAsync(Guid mealInstanceId)
         {
-            MealInstance? instance = await db.MealInstances.FirstOrDefaultAsync(x => x.MealInstanceId == mealInstanceId);
+            MealInstance? instance = await db.MealInstances.Include(x => x.Meal).FirstOrDefaultAsync(x => x.MealInstanceId == mealInstanceId);
             if (instance is null)
             {
                 return;
             }
 
+            string mealName = instance.Meal!.Name;
             db.MealInstances.Remove(instance);
 
             bool hasOtherInstances = await db.MealInstances.AnyAsync(x => x.MealId == instance.MealId && x.MealInstanceId != mealInstanceId);
@@ -79,6 +84,7 @@ namespace StockWise.Services
             }
 
             await db.SaveChangesAsync();
+            await historyService.LogMealEatenAsync(mealName);
         }
 
         /// <summary>

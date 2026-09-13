@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Categories
 {
@@ -9,7 +10,8 @@ namespace StockWise.Pages.Manage.Categories
     /// Page model for renaming a storage category.
     /// </summary>
     /// <param name="db">The database context.</param>
-    public class EditModel(StockWiseDbContext db) : PageModel
+    /// <param name="historyService">The history service.</param>
+    public class EditModel(StockWiseDbContext db, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// The category being edited.
@@ -47,6 +49,7 @@ namespace StockWise.Pages.Manage.Categories
             db.Entry(Category).Property(x => x.Name).IsModified = true;
             db.Entry(Category).Property(x => x.Color).IsModified = true;
             await db.SaveChangesAsync();
+            await historyService.LogCategoryUpdatedAsync(Category.Name);
             return RedirectToPage("Index");
         }
     }
