@@ -446,7 +446,7 @@ button.btn-icon {
     /* Compact 2-column card grid, values only (no field labels), used for the home page's all-stock table. */
     .table-cards-grid thead tr {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
     }
 
     .table-cards-grid thead th {
