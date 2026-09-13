@@ -32,7 +32,7 @@ namespace StockWise.Services
         /// </summary>
         private TimeSpan GetDelayUntilNextRun()
         {
-            int runAtHour = configuration.GetValue<int>("ExpiryNotifications:RunAtHour", 8);
+            int runAtHour = configuration.GetValue("ExpiryNotifications:RunAtHour", 8);
             DateTime now = DateTime.Now;
             DateTime nextRun = new(now.Year, now.Month, now.Day, runAtHour, 0, 0);
             if (nextRun <= now)
@@ -49,7 +49,7 @@ namespace StockWise.Services
         /// <param name="stoppingToken">Signals that the application is stopping.</param>
         private async Task CheckExpiringStockAsync(CancellationToken stoppingToken)
         {
-            int daysAhead = configuration.GetValue<int>("ExpiryNotifications:DaysAhead", 1);
+            int daysAhead = configuration.GetValue("ExpiryNotifications:DaysAhead", 1);
             using IServiceScope scope = scopeFactory.CreateScope();
             StockWiseDbContext db = scope.ServiceProvider.GetRequiredService<StockWiseDbContext>();
             DateOnly today = DateOnly.FromDateTime(DateTime.Today);
