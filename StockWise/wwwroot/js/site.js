@@ -48,3 +48,76 @@ document.addEventListener('DOMContentLoaded', function () {
     isOpenable.addEventListener('change', syncOpenableDependents);
     syncOpenableDependents();
 });
+
+// Bulk-add scan page: builds a running list of scanned barcodes client-side, aggregating repeats into quantities.
+document.addEventListener('DOMContentLoaded', function () {
+    var input = document.getElementById('bulkBarcodeInput');
+    if (!input) {
+        return;
+    }
+
+    var lookupScript = document.getElementById('bulkItemLookup');
+    var lookupItems = lookupScript ? JSON.parse(lookupScript.textContent) : [];
+    var namesByBarcode = {};
+    lookupItems.forEach(function (item) {
+        namesByBarcode[item.Barcode] = item.Name;
+    });
+
+    var scanned = [];
+    var list = document.getElementById('bulkScanList');
+    var batchInput = document.getElementById('bulkBatchInput');
+    var reviewButton = document.getElementById('bulkReviewButton');
+
+    function render() {
+        list.innerHTML = '';
+        scanned.forEach(function (entry, index) {
+            var li = document.createElement('li');
+            li.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+            var label = document.createElement('span');
+            label.textContent = (entry.name || ('Unknown: ' + entry.barcode)) + ' × ' + entry.count;
+            if (!entry.name) {
+                label.classList.add('text-warning');
+            }
+
+            var removeButton = document.createElement('button');
+            removeButton.type = 'button';
+            removeButton.className = 'btn-icon';
+            removeButton.setAttribute('aria-label', 'Remove');
+            removeButton.textContent = '✕';
+            removeButton.addEventListener('click', function () {
+                scanned.splice(index, 1);
+                render();
+            });
+
+            li.appendChild(label);
+            li.appendChild(removeButton);
+            list.appendChild(li);
+        });
+
+        batchInput.value = scanned.map(function (entry) { return entry.barcode + '|' + entry.count; }).join(',');
+        reviewButton.disabled = scanned.length === 0;
+    }
+
+    input.addEventListener('keydown', function (event) {
+        if (event.key !== 'Enter') {
+            return;
+        }
+
+        event.preventDefault();
+        var barcode = input.value.trim();
+        input.value = '';
+        if (!barcode) {
+            return;
+        }
+
+        var existing = scanned.find(function (entry) { return entry.barcode === barcode; });
+        if (existing) {
+            existing.count++;
+        } else {
+            scanned.push({ barcode: barcode, name: namesByBarcode[barcode] || null, count: 1 });
+        }
+
+        render();
+    });
+});

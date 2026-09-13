@@ -1,0 +1,118 @@
+@page
+@model StockWise.Pages.Stock.BulkAddModel
+@{
+    ViewData["Title"] = "Bulk add stock";
+}
+
+<h1>Bulk add stock</h1>
+
+@if (string.IsNullOrWhiteSpace(Model.Batch))
+{
+    <p class="text-muted">Scan barcodes one after another, then review and add them all to your inventory.</p>
+
+    <div class="mb-3">
+        <input id="bulkBarcodeInput" class="form-control" autofocus autocomplete="off" placeholder="Scan a barcode..." />
+    </div>
+
+    <ul id="bulkScanList" class="list-group mb-3"></ul>
+
+    <form method="get">
+        <input type="hidden" name="batch" id="bulkBatchInput" />
+        <button type="submit" class="btn btn-primary" id="bulkReviewButton" disabled>Review &amp; add stock</button>
+    </form>
+
+    <script type="application/json" id="bulkItemLookup">@Html.Raw(Model.ItemLookupJson)</script>
+}
+else
+{
+    <p class="text-muted">@Model.RemainingCount item@(Model.RemainingCount == 1 ? "" : "s") left in this batch.</p>
+
+    @if (Model.Item is not null)
+    {
+        <h2 class="h4">@Model.Item.Name</h2>
+
+        <form method="post" asp-page-handler="AddStock">
+            <input type="hidden" asp-for="Batch" />
+            <input type="hidden" name="itemId" value="@Model.Item.ItemId" />
+            <div class="mb-3">
+                <label asp-for="LocationId" class="form-label">Location</label>
+                <select asp-for="LocationId" class="form-select" data-expiry-target="Expiry">
+                    <option value="">-- Select a location --</option>
+                    @foreach (StockWise.Models.Location location in Model.AllowedLocations)
+                    {
+                        <option value="@location.LocationId" data-category="@location.Category?.Name">@location.Category?.Name - @location.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Quantity" class="form-label">Quantity</label>
+                <input asp-for="Quantity" class="form-control" type="number" min="1" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Expiry" class="form-label">Expiry</label>
+                <input asp-for="Expiry" class="form-control" type="date" />
+            </div>
+            <button type="submit" class="btn btn-primary">Add stock</button>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-warning">No item found for barcode "@Model.CurrentBarcode".</div>
+
+        <form method="post" asp-page-handler="AddItem">
+            <input type="hidden" asp-for="Batch" />
+            <div class="mb-3">
+                <label asp-for="NewItemBarcode" class="form-label">Barcode</label>
+                <input asp-for="NewItemBarcode" class="form-control" readonly />
+            </div>
+            <div class="mb-3">
+                <label asp-for="NewItemName" class="form-label">Name</label>
+                <input asp-for="NewItemName" class="form-control" autocapitalize="words" autofocus />
+            </div>
+            <div class="mb-3">
+                <label asp-for="NewItemImageUrl" class="form-label">Image URL</label>
+                <input asp-for="NewItemImageUrl" class="form-control" />
+            </div>
+            <div class="mb-3 form-check">
+                <input asp-for="NewItemIsOpenable" class="form-check-input" />
+                <label asp-for="NewItemIsOpenable" class="form-check-label">Can be opened</label>
+            </div>
+            <div class="mb-3">
+                <label asp-for="NewItemExpiryAfterOpeningDays" class="form-label">Expiry after opening (days)</label>
+                <input asp-for="NewItemExpiryAfterOpeningDays" class="form-control openable-dependent" type="number" min="0" />
+            </div>
+
+            <h2 class="h5">Allowed categories</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Unopened</th>
+                        <th>Opened</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.NewItemCategoryAllowances.Count; i++)
+                    {
+                        <tr>
+                            <td>
+                                @Model.NewItemCategoryAllowances[i].CategoryName
+                                <input type="hidden" asp-for="NewItemCategoryAllowances[i].CategoryId" />
+                                <input type="hidden" asp-for="NewItemCategoryAllowances[i].CategoryName" />
+                            </td>
+                            <td><input asp-for="NewItemCategoryAllowances[i].AllowedWhenUnopened" /></td>
+                            <td><input asp-for="NewItemCategoryAllowances[i].AllowedWhenOpened" class="openable-dependent" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <button type="submit" class="btn btn-primary">Add item &amp; continue</button>
+        </form>
+    }
+
+    <form method="post" asp-page-handler="Skip" class="mt-3">
+        <input type="hidden" asp-for="Batch" />
+        <button type="submit" class="btn btn-outline-secondary btn-sm">Skip this item</button>
+    </form>
+}

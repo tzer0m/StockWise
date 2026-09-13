@@ -1,16 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Items
 {
     /// <summary>
     /// Page model for editing a trackable item and its category allowances.
     /// </summary>
-    /// <param name="db">The database context.</param>
-    public class EditModel(StockWiseDbContext db) : PageModel
+    /// <param name="itemService">The item service.</param>
+    public class EditModel(ItemService itemService) : PageModel
     {
         /// <summary>
         /// The ID of the item being edited.
@@ -60,7 +59,7 @@ namespace StockWise.Pages.Manage.Items
         /// <param name="id">The ID of the item to edit.</param>
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            Item? item = await db.Items.Include(x => x.ItemStorageCategories).FirstOrDefaultAsync(x => x.ItemId == id);
+            Item? item = await itemService.FindByIdAsync(id);
             if (item is null)
             {
                 return NotFound();
@@ -72,7 +71,7 @@ namespace StockWise.Pages.Manage.Items
             ImageUrl = item.ImageUrl;
             IsOpenable = item.IsOpenable;
             ExpiryAfterOpeningDays = item.ExpiryAfterOpeningDays;
-            await LoadCategoryAllowancesAsync(item);
+            CategoryAllowances = await itemService.GetCategoryAllowancesAsync(item);
             return Page();
         }
 
@@ -86,36 +85,14 @@ namespace StockWise.Pages.Manage.Items
                 return Page();
             }
 
-            Item? item = await db.Items.Include(x => x.ItemStorageCategories).FirstOrDefaultAsync(x => x.ItemId == ItemId);
+            Item? item = await itemService.FindByIdAsync(ItemId);
             if (item is null)
             {
                 return NotFound();
             }
 
-            item.Barcode = Barcode.Trim();
-            item.Name = Name.Trim();
-            item.ImageUrl = ImageUrl;
-            item.IsOpenable = IsOpenable;
-            item.ExpiryAfterOpeningDays = IsOpenable ? ExpiryAfterOpeningDays : null;
-
-            item.ItemStorageCategories.Clear();
-            foreach (CategoryAllowance allowance in CategoryAllowances.Where(x => x.AllowedWhenUnopened || (IsOpenable && x.AllowedWhenOpened)))
-            {
-                item.ItemStorageCategories.Add(new ItemStorageCategory { ItemId = item.ItemId, CategoryId = allowance.CategoryId, AllowedWhenUnopened = allowance.AllowedWhenUnopened, AllowedWhenOpened = IsOpenable && allowance.AllowedWhenOpened });
-            }
-
-            await db.SaveChangesAsync();
+            await itemService.UpdateAsync(item, Barcode, Name, ImageUrl, IsOpenable, ExpiryAfterOpeningDays, CategoryAllowances);
             return RedirectToPage("Index");
-        }
-
-        /// <summary>
-        /// Loads the category allowance rows from the database, marking any the item already has.
-        /// </summary>
-        /// <param name="item">The item being edited.</param>
-        private async Task LoadCategoryAllowancesAsync(Item item)
-        {
-            List<StorageCategory> categories = await db.StorageCategories.OrderBy(x => x.Name).ToListAsync();
-            CategoryAllowances = [.. categories.Select(x => new CategoryAllowance { CategoryId = x.CategoryId, CategoryName = x.Name, AllowedWhenUnopened = item.ItemStorageCategories.Any(y => y.CategoryId == x.CategoryId && y.AllowedWhenUnopened), AllowedWhenOpened = item.ItemStorageCategories.Any(y => y.CategoryId == x.CategoryId && y.AllowedWhenOpened) })];
         }
     }
 }

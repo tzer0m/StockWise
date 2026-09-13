@@ -1,16 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
-using StockWise.Data;
 using StockWise.Models;
+using StockWise.Services;
 
 namespace StockWise.Pages.Manage.Items
 {
     /// <summary>
     /// Page model for adding a new trackable item.
     /// </summary>
-    /// <param name="db">The database context.</param>
-    public class AddModel(StockWiseDbContext db) : PageModel
+    /// <param name="itemService">The item service.</param>
+    public class AddModel(ItemService itemService) : PageModel
     {
         /// <summary>
         /// The barcode for the new item.
@@ -55,7 +54,7 @@ namespace StockWise.Pages.Manage.Items
         public async Task OnGetAsync(string? barcode)
         {
             Barcode = barcode ?? string.Empty;
-            await LoadCategoryAllowancesAsync();
+            CategoryAllowances = await itemService.GetCategoryAllowancesAsync();
         }
 
         /// <summary>
@@ -68,24 +67,8 @@ namespace StockWise.Pages.Manage.Items
                 return Page();
             }
 
-            Item item = new() { Barcode = Barcode.Trim(), Name = Name.Trim(), ImageUrl = ImageUrl, IsOpenable = IsOpenable, ExpiryAfterOpeningDays = IsOpenable ? ExpiryAfterOpeningDays : null, CreatedAt = DateTime.UtcNow };
-            foreach (CategoryAllowance allowance in CategoryAllowances.Where(x => x.AllowedWhenUnopened || (IsOpenable && x.AllowedWhenOpened)))
-            {
-                item.ItemStorageCategories.Add(new ItemStorageCategory { CategoryId = allowance.CategoryId, AllowedWhenUnopened = allowance.AllowedWhenUnopened, AllowedWhenOpened = IsOpenable && allowance.AllowedWhenOpened });
-            }
-
-            db.Items.Add(item);
-            await db.SaveChangesAsync();
+            Item item = await itemService.CreateAsync(Barcode, Name, ImageUrl, IsOpenable, ExpiryAfterOpeningDays, CategoryAllowances);
             return RedirectToPage("/Stock/Add", new { barcode = item.Barcode });
-        }
-
-        /// <summary>
-        /// Loads the category allowance rows from the database.
-        /// </summary>
-        private async Task LoadCategoryAllowancesAsync()
-        {
-            List<StorageCategory> categories = await db.StorageCategories.OrderBy(x => x.Name).ToListAsync();
-            CategoryAllowances = [.. categories.Select(x => new CategoryAllowance { CategoryId = x.CategoryId, CategoryName = x.Name })];
         }
     }
 }
