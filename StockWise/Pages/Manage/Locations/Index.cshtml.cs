@@ -19,6 +19,18 @@ namespace StockWise.Pages.Manage.Locations
         public List<Location> Locations { get; set; } = [];
 
         /// <summary>
+        /// The column to sort the locations table by.
+        /// </summary>
+        [BindProperty(SupportsGet = true)]
+        public string Sort { get; set; } = "category";
+
+        /// <summary>
+        /// The sort direction: "asc" or "desc".
+        /// </summary>
+        [BindProperty(SupportsGet = true)]
+        public string Direction { get; set; } = "asc";
+
+        /// <summary>
         /// The available categories, for the add-location form.
         /// </summary>
         public List<SelectListItem> CategoryOptions { get; set; } = [];
@@ -91,9 +103,24 @@ namespace StockWise.Pages.Manage.Locations
         /// </summary>
         private async Task LoadAsync()
         {
-            Locations = await db.Locations.Include(x => x.Category).OrderBy(x => x.Category!.Name).ThenBy(x => x.Name).ToListAsync();
+            Locations = await ApplySort(db.Locations.Include(x => x.Category), Sort, Direction == "desc").ToListAsync();
             List<StorageCategory> categories = await db.StorageCategories.OrderBy(x => x.Name).ToListAsync();
             CategoryOptions = [.. categories.Select(x => new SelectListItem(x.Name, x.CategoryId.ToString()))];
+        }
+
+        /// <summary>
+        /// Applies the requested sort to the locations query.
+        /// </summary>
+        /// <param name="query">The locations query to sort.</param>
+        /// <param name="sort">The column to sort by.</param>
+        /// <param name="descending">Whether to sort in descending order.</param>
+        private static IOrderedQueryable<Location> ApplySort(IQueryable<Location> query, string sort, bool descending)
+        {
+            return sort switch
+            {
+                "name" => descending ? query.OrderByDescending(x => x.Name) : query.OrderBy(x => x.Name),
+                _ => descending ? query.OrderByDescending(x => x.Category!.Name).ThenBy(x => x.Name) : query.OrderBy(x => x.Category!.Name).ThenBy(x => x.Name),
+            };
         }
     }
 }

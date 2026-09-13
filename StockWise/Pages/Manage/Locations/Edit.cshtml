@@ -4,18 +4,12 @@
     ViewData["Title"] = "Edit Location";
 }
 
-<h1>Edit Location</h1>
-
 <form method="post">
     <input type="hidden" asp-for="Location.LocationId" />
-    <div class="mb-3">
-        <label asp-for="Location.CategoryId" class="form-label">Category</label>
+    <div class="d-flex gap-2 mb-3">
         <select asp-for="Location.CategoryId" class="form-select" asp-items="Model.CategoryOptions"></select>
-    </div>
-    <div class="mb-3">
-        <label asp-for="Location.Name" class="form-label">Name</label>
-        <input asp-for="Location.Name" class="form-control" autocapitalize="words" />
+        <input asp-for="Location.Name" class="form-control flex-grow-1" autocapitalize="words" placeholder="Name" />
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-page="Index" class="btn btn-link">Cancel</a>
+    <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
 </form>

@@ -4,50 +4,47 @@
     ViewData["Title"] = "Locations";
 }
 
-<h1>Locations</h1>
-
 @if (Model.ErrorMessage is not null)
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Category</th>
-            <th>Name</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (StockWise.Models.Location location in Model.Locations)
-        {
-            <tr>
-                <td>@location.Category?.Name</td>
-                <td>@location.Name</td>
-                <td>
-                    <a asp-page="Edit" asp-route-id="@location.LocationId">Edit</a>
-                    <form method="post" asp-page-handler="Delete" asp-route-id="@location.LocationId" class="d-inline" onsubmit="return confirm('Delete this location?');">
-                        <button type="submit" class="btn btn-link text-danger p-0 ms-2">Delete</button>
-                    </form>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-<h2>Add Location</h2>
-
-<form method="post" asp-page-handler="Add">
-    <div class="mb-3">
-        <label asp-for="NewLocationCategoryId" class="form-label">Category</label>
-        <select asp-for="NewLocationCategoryId" class="form-select" asp-items="Model.CategoryOptions">
-            <option value="">-- Select a category --</option>
-        </select>
-    </div>
-    <div class="mb-3">
-        <label asp-for="NewLocationName" class="form-label">Name</label>
-        <input asp-for="NewLocationName" class="form-control" autocapitalize="words" />
-    </div>
+<form method="post" asp-page-handler="Add" class="d-flex gap-2 mb-4">
+    <select asp-for="NewLocationCategoryId" class="form-select" asp-items="Model.CategoryOptions">
+        <option value="">-- Category --</option>
+    </select>
+    <input asp-for="NewLocationName" class="form-control flex-grow-1" autocapitalize="words" placeholder="Name" />
     <button type="submit" class="btn btn-primary">Add</button>
 </form>
+
+@if (Model.Locations.Count == 0)
+{
+    <p>No locations yet.</p>
+}
+else
+{
+    <table class="table table-cards">
+        <thead>
+            <tr>
+                <th><a asp-page="Index" asp-route-sort="category" asp-route-direction="@(Model.Sort == "category" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Category@(Model.Sort == "category" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a asp-page="Index" asp-route-sort="name" asp-route-direction="@(Model.Sort == "name" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Name@(Model.Sort == "name" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (StockWise.Models.Location location in Model.Locations)
+            {
+                <tr>
+                    <td data-label="Category">@location.Category?.Name</td>
+                    <td class="cell-heading">@location.Name</td>
+                    <td class="action-cell">
+                        <a asp-page="Edit" asp-route-id="@location.LocationId" class="btn-icon" title="Edit" aria-label="Edit"><partial name="_Icon" model="@("pencil")" /></a>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@location.LocationId" class="d-inline" onsubmit="return confirm('Delete this location?');">
+                            <button type="submit" class="btn-icon" title="Delete" aria-label="Delete"><partial name="_Icon" model="@("x-lg")" /></button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
