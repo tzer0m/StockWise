@@ -86,7 +86,7 @@ namespace StockWise.Pages.Stock
 
             await stockService.AddOrMergeAsync(itemId, LocationId, Quantity, Expiry);
             Message = "Stock added.";
-            return RedirectToPage();
+            return RedirectToPage("/Index");
         }
 
         /// <summary>

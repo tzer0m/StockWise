@@ -46,6 +46,21 @@ namespace StockWise.Pages
         public List<StockWise.Models.Stock> ScannedItemStock { get; set; } = [];
 
         /// <summary>
+        /// The heading to show for the scanned item, formatted as "Brand Name", omitting the brand when it's unknown.
+        /// </summary>
+        public string ScannedItemTitle => ScannedItem is null
+            ? string.Empty
+            : string.IsNullOrWhiteSpace(ScannedItem.Brand)
+                ? ScannedItem.Name
+                : $"{ScannedItem.Brand} {ScannedItem.Name}";
+
+        /// <summary>
+        /// A message to show after an action elsewhere redirects back here, such as adding stock.
+        /// </summary>
+        [TempData]
+        public string? Message { get; set; }
+
+        /// <summary>
         /// Loads the sorted stock, plus the scanned item if a barcode was given.
         /// </summary>
         public async Task OnGetAsync()
