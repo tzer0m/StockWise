@@ -4,40 +4,63 @@
     ViewData["Title"] = "Items";
 }
 
+<form method="get" class="mb-4">
+    <div class="mb-3">
+        <input asp-for="Barcode" class="form-control" autofocus autocomplete="off" />
+    </div>
+</form>
+
+@if (Model.ItemAlreadyExists)
+{
+    <div class="alert alert-warning">Item already exists.</div>
+}
+
 @if (Model.ErrorMessage is not null)
 {
     <div class="alert alert-danger">@Model.ErrorMessage</div>
 }
 
-<div class="mb-3">
-    <a asp-page="Add" class="btn btn-primary">Add Item</a>
-</div>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Barcode</th>
-            <th>Name</th>
-            <th>Brand</th>
-            <th>Can Be Opened</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (StockWise.Models.Item item in Model.Items)
-        {
+@if (Model.Items.Count == 0)
+{
+    <p>No items yet.</p>
+}
+else
+{
+    <table class="table table-cards">
+        <thead>
             <tr>
-                <td>@item.Barcode</td>
-                <td>@item.Name</td>
-                <td>@item.Brand</td>
-                <td>@(item.IsOpenable ? "Yes" : "No")</td>
-                <td>
-                    <a asp-page="Edit" asp-route-id="@item.ItemId">Edit</a>
-                    <form method="post" asp-page-handler="Delete" asp-route-id="@item.ItemId" class="d-inline" onsubmit="return confirm('Delete this item?');">
-                        <button type="submit" class="btn btn-link text-danger p-0 ms-2">Delete</button>
-                    </form>
-                </td>
+                <th><a asp-page="Index" asp-route-sort="name" asp-route-direction="@(Model.Sort == "name" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Name@(Model.Sort == "name" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a asp-page="Index" asp-route-sort="brand" asp-route-direction="@(Model.Sort == "brand" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Brand@(Model.Sort == "brand" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a asp-page="Index" asp-route-sort="barcode" asp-route-direction="@(Model.Sort == "barcode" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Barcode@(Model.Sort == "barcode" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th><a asp-page="Index" asp-route-sort="openable" asp-route-direction="@(Model.Sort == "openable" && Model.Direction == "asc" ? "desc" : "asc")" class="text-decoration-none">Can Be Opened@(Model.Sort == "openable" ? (Model.Direction == "asc" ? " ▲" : " ▼") : "")</a></th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (StockWise.Models.Item item in Model.Items)
+            {
+                <tr>
+                    <td class="cell-heading">@item.Name</td>
+                    <td data-label="Brand">@item.Brand</td>
+                    <td data-label="Barcode">@item.Barcode</td>
+                    <td data-label="Can Be Opened">
+                        @if (item.IsOpenable)
+                        {
+                            <span class="tile tile-green tile-icon"><partial name="_Icon" model="@("check-lg")" /></span>
+                        }
+                        else
+                        {
+                            <span class="tile tile-red tile-icon"><partial name="_Icon" model="@("x-lg")" /></span>
+                        }
+                    </td>
+                    <td class="action-cell">
+                        <a asp-page="Edit" asp-route-id="@item.ItemId" class="btn-icon" title="Edit" aria-label="Edit"><partial name="_Icon" model="@("pencil")" /></a>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@item.ItemId" class="d-inline" onsubmit="return confirm('Delete this item?');">
+                            <button type="submit" class="btn-icon" title="Delete" aria-label="Delete"><partial name="_Icon" model="@("x-lg")" /></button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
