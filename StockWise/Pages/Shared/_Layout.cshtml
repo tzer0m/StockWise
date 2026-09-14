@@ -20,18 +20,20 @@
                     <img src="~/icons/icon-nav.png" alt="" width="28" height="28" asp-append-version="true" />
                     StockWise
                 </a>
+                <ul class="navbar-nav nav-pinned flex-row">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Stock/BulkAdd">Bulk</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-area="" asp-page="/Meals/Add">Meal</a>
+                    </li>
+                </ul>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link" asp-area="" asp-page="/Stock/BulkAdd">Bulk</a>
-                        </li>
-                        <li>
-                            <a class="nav-link" asp-area="" asp-page="/Meals/Add">Meal</a>
-                        </li>
                         <li>
                             <a class="nav-link" asp-area="" asp-page="/Manage/Items/Index">Items</a>
                         </li>

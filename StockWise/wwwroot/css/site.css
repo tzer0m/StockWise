@@ -341,6 +341,37 @@ button.btn-icon {
     color: var(--sw-muted);
 }
 
+/* Bulk/Meal links, pinned outside the collapsible menu so they stay visible in the top bar on mobile. On wide screens the rest of the nav is inline too, so they're left as plain nav-links there to match; the boxed button look (matching the hamburger toggler's own size) only applies below the sm breakpoint, where the toggler is actually visible. */
+.nav-pinned {
+    align-items: center;
+    gap: .5rem;
+    margin-left: auto;
+    margin-right: .5rem;
+}
+
+@media (max-width: 575.98px) {
+    .nav-pinned {
+        gap: .35rem;
+        margin-right: .35rem;
+    }
+
+    .nav-pinned .nav-link {
+        padding: .68rem 1.15rem;
+        border-radius: .375rem;
+        background-color: var(--sw-surface-raised);
+        border: 1px solid var(--sw-border);
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .nav-pinned .nav-link:hover, .nav-pinned .nav-link:focus {
+        border-color: var(--sw-red-light);
+        color: var(--sw-red-light) !important;
+    }
+}
+
 @media (max-width: 767.98px) {
     .table-cards, .table-cards tbody, .table-cards tbody tr, .table-cards tbody td {
         display: block;
