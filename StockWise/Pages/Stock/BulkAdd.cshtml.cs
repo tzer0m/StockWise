@@ -126,6 +126,7 @@ namespace StockWise.Pages.Stock
                     await LoadDisplayContextAsync(entries);
                 }
 
+                ViewData["AvailableTypes"] = await itemService.GetTypesAsync();
                 return Page();
             }
 
@@ -162,6 +163,7 @@ namespace StockWise.Pages.Stock
 
             NewItem = new ItemFormInput { Barcode = current.Barcode, CategoryAllowances = await itemService.GetCategoryAllowancesAsync() };
             await itemService.PrefillFromBarcodeAsync(NewItem);
+            ViewData["AvailableTypes"] = await itemService.GetTypesAsync();
         }
 
         /// <summary>
