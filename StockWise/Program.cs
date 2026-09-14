@@ -19,6 +19,11 @@ builder.Services.AddHttpClient<ChitterClient>(client =>
     client.BaseAddress = new Uri(builder.Configuration["Chitter:BaseUrl"] ?? throw new InvalidOperationException("Chitter:BaseUrl is not configured"));
     client.DefaultRequestHeaders.Add("X-API-Key", builder.Configuration["Chitter:ApiKey"] ?? throw new InvalidOperationException("Chitter:ApiKey is not configured"));
 });
+builder.Services.AddHttpClient<OpenFoodFactsClient>(client =>
+{
+    client.BaseAddress = new Uri("https://world.openfoodfacts.org/");
+    client.DefaultRequestHeaders.Add("User-Agent", builder.Configuration["OpenFoodFacts:UserAgent"] ?? "StockWise/1.0 (homelab)");
+});
 builder.Services.AddTingClient(builder.Configuration);
 builder.Services.AddHostedService<ExpiryNotificationService>();
 

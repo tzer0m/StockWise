@@ -143,7 +143,7 @@ namespace StockWise.Pages.Stock
         }
 
         /// <summary>
-        /// Loads the current item in the batch, its allowed locations if known, or its new-item category allowances if not.
+        /// Loads the current item in the batch, its allowed locations if known, or its new-item category allowances - prefilled from Open Food Facts where possible - if not.
         /// </summary>
         /// <param name="entries">The parsed batch entries.</param>
         private async Task LoadCurrentItemAsync(List<(string Barcode, int Quantity)> entries)
@@ -161,6 +161,7 @@ namespace StockWise.Pages.Stock
             }
 
             NewItem = new ItemFormInput { Barcode = current.Barcode, CategoryAllowances = await itemService.GetCategoryAllowancesAsync() };
+            await itemService.PrefillFromBarcodeAsync(NewItem);
         }
 
         /// <summary>

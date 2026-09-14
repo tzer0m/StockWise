@@ -24,6 +24,11 @@ namespace StockWise.Pages.Manage.Items
         public async Task OnGetAsync(string? barcode)
         {
             Input = new ItemFormInput { Barcode = barcode ?? string.Empty, CategoryAllowances = await itemService.GetCategoryAllowancesAsync() };
+            if (!string.IsNullOrWhiteSpace(barcode))
+            {
+                await itemService.PrefillFromBarcodeAsync(Input);
+            }
+
             ViewData["AvailableTypes"] = await itemService.GetTypesAsync();
         }
 

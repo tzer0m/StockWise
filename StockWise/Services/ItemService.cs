@@ -9,7 +9,8 @@ namespace StockWise.Services
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="historyService">The history service.</param>
-    public class ItemService(StockWiseDbContext db, HistoryService historyService)
+    /// <param name="openFoodFactsClient">The Open Food Facts client.</param>
+    public class ItemService(StockWiseDbContext db, HistoryService historyService, OpenFoodFactsClient openFoodFactsClient)
     {
         /// <summary>
         /// Finds an item by its barcode, including its storage category allowances.
@@ -55,6 +56,29 @@ namespace StockWise.Services
         public async Task<List<ItemType>> GetTypesAsync()
         {
             return await db.Types.OrderBy(x => x.Name).ToListAsync();
+        }
+
+        /// <summary>
+        /// Looks up the barcode against Open Food Facts and fills in the name and brand fields when a match is found, leaving them for the user to check before saving.
+        /// </summary>
+        /// <param name="input">The new item's fields, with the barcode already set.</param>
+        public async Task PrefillFromBarcodeAsync(ItemFormInput input)
+        {
+            OpenFoodFactsLookupResult? result = await openFoodFactsClient.LookupAsync(input.Barcode);
+            if (result is null)
+            {
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(result.Name))
+            {
+                input.Name = result.Name;
+            }
+
+            if (!string.IsNullOrWhiteSpace(result.Brand))
+            {
+                input.Brand = result.Brand;
+            }
         }
 
         /// <summary>
