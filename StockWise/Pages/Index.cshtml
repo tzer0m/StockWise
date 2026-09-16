@@ -119,7 +119,7 @@
                                         }
                                     </td>
                                     <td class="action-cell">
-                                        <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" asp-route-barcode="@Model.Barcode" class="d-inline">
+                                        <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" asp-route-barcode="@Model.Barcode" data-scan-action="checkout1" class="d-inline">
                                             <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1">1</button>
                                         </form>
                                     </td>

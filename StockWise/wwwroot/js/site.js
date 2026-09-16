@@ -153,3 +153,38 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+// Home page: lets a printed "quick action" QR code (scanned into the barcode field) trigger a button on the scanned item's card directly, instead of being looked up as a barcode. Only acts when exactly one matching element is on the page, to avoid guessing between multiple stock rows.
+document.addEventListener('DOMContentLoaded', function () {
+    var scanForm = document.querySelector('form[method="get"]');
+    var scanInput = scanForm ? scanForm.querySelector('input[name="Barcode"]') : null;
+    if (!scanForm || !scanInput) {
+        return;
+    }
+
+    var scanActions = {
+        'SW-ACTION:CHECKOUT1': 'checkout1'
+    };
+
+    scanForm.addEventListener('submit', function (event) {
+        var action = scanActions[scanInput.value.trim()];
+        if (!action) {
+            return;
+        }
+
+        event.preventDefault();
+        scanInput.value = '';
+
+        var targets = document.querySelectorAll('[data-scan-action="' + action + '"]');
+        if (targets.length !== 1) {
+            return;
+        }
+
+        var target = targets[0];
+        if (target.tagName === 'FORM') {
+            target.requestSubmit();
+        } else {
+            target.click();
+        }
+    });
+});
