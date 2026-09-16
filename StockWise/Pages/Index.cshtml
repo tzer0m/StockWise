@@ -117,7 +117,7 @@
                                     <td class="action-cell">
                                         @if (Model.ScannedItem.IsOpenable && stock.OpenedAt is null)
                                         {
-                                            <a asp-page="/Stock/Open" asp-route-id="@stock.StockId" class="btn-icon" title="Open" aria-label="Open"><partial name="_Icon" model="@("unlock")" /></a>
+                                            <a asp-page="/Stock/Open" asp-route-id="@stock.StockId" data-scan-action="open" class="btn-icon" title="Open" aria-label="Open"><partial name="_Icon" model="@("unlock")" /></a>
                                         }
                                     </td>
                                     <td class="action-cell">
@@ -140,7 +140,7 @@
                                     <td class="action-cell">
                                         @if (stock.OpenedAt is not null)
                                         {
-                                            <form method="post" asp-page-handler="Finish" asp-route-stockId="@stock.StockId" asp-route-barcode="@Model.Barcode" class="d-inline">
+                                            <form method="post" asp-page-handler="Finish" asp-route-stockId="@stock.StockId" asp-route-barcode="@Model.Barcode" data-scan-action="finish" class="d-inline">
                                                 <button type="submit" class="btn-icon" title="Finish" aria-label="Finish"><partial name="_Icon" model="@("check2-circle")" /></button>
                                             </form>
                                         }

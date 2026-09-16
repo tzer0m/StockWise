@@ -164,7 +164,9 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     var scanActions = {
-        'SW-ACTION:CHECKOUT1': 'checkout1'
+        'SW-ACTION:CHECKOUT1': 'checkout1',
+        'SW-ACTION:OPEN': 'open',
+        'SW-ACTION:FINISH': 'finish'
     };
 
     function showScanActionMessage(text) {
