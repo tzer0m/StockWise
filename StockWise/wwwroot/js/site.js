@@ -154,10 +154,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// Home page: lets a printed "quick action" QR code (scanned into the barcode field) trigger a button on the scanned item's card directly, instead of being looked up as a barcode. Only acts when exactly one matching element is on the page, to avoid guessing between multiple stock rows.
+// Home page: lets a printed "quick action" QR code (scanned into the barcode field) trigger a button on the scanned item's card directly, instead of being looked up as a barcode. Only acts when exactly one matching element is on the page, to avoid guessing between multiple stock rows - otherwise it shows a short message explaining why nothing happened.
 document.addEventListener('DOMContentLoaded', function () {
     var scanForm = document.querySelector('form[method="get"]');
     var scanInput = scanForm ? scanForm.querySelector('input[name="Barcode"]') : null;
+    var messageBox = document.getElementById('scanActionMessage');
     if (!scanForm || !scanInput) {
         return;
     }
@@ -165,6 +166,25 @@ document.addEventListener('DOMContentLoaded', function () {
     var scanActions = {
         'SW-ACTION:CHECKOUT1': 'checkout1'
     };
+
+    function showScanActionMessage(text) {
+        if (!messageBox) {
+            return;
+        }
+
+        messageBox.textContent = text;
+        messageBox.classList.remove('d-none');
+    }
+
+    function hideScanActionMessage() {
+        if (!messageBox) {
+            return;
+        }
+
+        messageBox.classList.add('d-none');
+    }
+
+    scanInput.addEventListener('input', hideScanActionMessage);
 
     scanForm.addEventListener('submit', function (event) {
         var action = scanActions[scanInput.value.trim()];
@@ -176,10 +196,17 @@ document.addEventListener('DOMContentLoaded', function () {
         scanInput.value = '';
 
         var targets = document.querySelectorAll('[data-scan-action="' + action + '"]');
-        if (targets.length !== 1) {
+        if (targets.length === 0) {
+            showScanActionMessage('No item on screen for quick action.');
             return;
         }
 
+        if (targets.length > 1) {
+            showScanActionMessage('More than one matching row on screen, unable to perform quick action.');
+            return;
+        }
+
+        hideScanActionMessage();
         var target = targets[0];
         if (target.tagName === 'FORM') {
             target.requestSubmit();
