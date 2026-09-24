@@ -217,3 +217,21 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+// Home page: reloads periodically so the expiry countdowns stay current on an always-on display, skipping the reload if a scan looks to be in progress.
+document.addEventListener('DOMContentLoaded', function () {
+    var scanForm = document.querySelector('form[method="get"]');
+    var scanInput = scanForm ? scanForm.querySelector('input[name="Barcode"]') : null;
+    if (!scanForm || !scanInput) {
+        return;
+    }
+
+    var refreshIntervalMs = 60 * 60 * 1000;
+    setInterval(function () {
+        if (document.activeElement === scanInput && scanInput.value) {
+            return;
+        }
+
+        location.reload();
+    }, refreshIntervalMs);
+});
