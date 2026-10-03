@@ -44,7 +44,7 @@ namespace StockWise.Services
         }
 
         /// <summary>
-        /// Finds stock expiring soon and sends a digest notification via Ting, one line per day.
+        /// Finds stock that has already expired or is expiring soon and sends a digest notification via Ting, with an expired line first then one line per day.
         /// </summary>
         /// <param name="stoppingToken">Signals that the application is stopping.</param>
         private async Task CheckExpiringStockAsync(CancellationToken stoppingToken)
@@ -54,13 +54,19 @@ namespace StockWise.Services
             StockWiseDbContext db = scope.ServiceProvider.GetRequiredService<StockWiseDbContext>();
             DateOnly today = DateOnly.FromDateTime(DateTime.Today);
             DateOnly cutoff = today.AddDays(daysAhead);
-            List<Stock> expiring = await db.Stock.Include(x => x.Item).Include(x => x.Location).Where(x => x.Expiry != null && x.Expiry >= today && x.Expiry <= cutoff).OrderBy(x => x.Expiry).ToListAsync(stoppingToken);
+            List<Stock> expiring = await db.Stock.Include(x => x.Item).Include(x => x.Location).Where(x => x.Expiry != null && x.Expiry <= cutoff).OrderBy(x => x.Expiry).ToListAsync(stoppingToken);
             if (expiring.Count == 0)
             {
                 return;
             }
 
             List<string> lines = [];
+            List<Stock> expired = [.. expiring.Where(x => x.Expiry < today)];
+            if (expired.Count > 0)
+            {
+                lines.Add($"Expired: {string.Join(", ", expired.Select(x => $"{x.Item?.Name} ({x.Location?.Name})"))}");
+            }
+
             for (int offset = 0; offset <= daysAhead; offset++)
             {
                 DateOnly date = today.AddDays(offset);
@@ -75,7 +81,7 @@ namespace StockWise.Services
             }
 
             string body = string.Join("\n", lines);
-            await tingClient.SendAsync("StockWise: items expiring soon", body);
+            await tingClient.SendAsync("StockWise: expired and expiring items", body);
         }
     }
 }
