@@ -81,7 +81,8 @@ namespace StockWise.Services
             }
 
             string body = string.Join("\n", lines);
-            await tingClient.SendAsync("StockWise: expired and expiring items", body);
+            string title = expiring.Count == 1 ? "StockWise: 1 Item Expiring" : $"StockWise: {expiring.Count} Items Expiring";
+            await tingClient.SendAsync(title, body);
         }
     }
 }
