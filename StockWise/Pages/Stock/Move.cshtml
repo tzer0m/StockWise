@@ -19,7 +19,7 @@ else
         <div class="form-row">
             <label class="form-label">Current Location</label>
             <div class="form-row-control">
-                <input class="form-control" value="@Model.Stock?.Location?.Name" readonly />
+                <div class="form-control-plaintext">@Model.Stock?.Location?.Category?.Name - @Model.Stock?.Location?.Name</div>
             </div>
         </div>
         <div class="form-row">

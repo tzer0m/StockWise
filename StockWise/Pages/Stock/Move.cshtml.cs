@@ -118,7 +118,7 @@ namespace StockWise.Pages.Stock
         /// <param name="id">The ID of the stock row to load.</param>
         private async Task<bool> LoadStockAsync(int id)
         {
-            Stock = await db.Stock.Include(x => x.Location).Include(x => x.Item).ThenInclude(x => x!.ItemStorageCategories).FirstOrDefaultAsync(x => x.StockId == id);
+            Stock = await db.Stock.Include(x => x.Location).ThenInclude(x => x!.Category).Include(x => x.Item).ThenInclude(x => x!.ItemStorageCategories).FirstOrDefaultAsync(x => x.StockId == id);
             if (Stock is null)
             {
                 return false;

@@ -121,9 +121,6 @@
                                         }
                                     </td>
                                     <td class="action-cell">
-                                        <a asp-page="/Stock/Move" asp-route-id="@stock.StockId" data-scan-action="move" class="btn-icon" title="Move" aria-label="Move"><partial name="_Icon" model="@("arrow-left-right")" /></a>
-                                    </td>
-                                    <td class="action-cell">
                                         <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stock.StockId" asp-route-barcode="@Model.Barcode" data-scan-action="checkout1" class="d-inline">
                                             <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1">1</button>
                                         </form>
@@ -139,6 +136,9 @@
                                                 </form>
                                             </span>
                                         }
+                                    </td>
+                                    <td class="action-cell">
+                                        <a asp-page="/Stock/Move" asp-route-id="@stock.StockId" data-scan-action="move" class="btn-icon" title="Move" aria-label="Move"><partial name="_Icon" model="@("arrow-left-right")" /></a>
                                     </td>
                                     <td class="action-cell">
                                         @if (stock.OpenedAt is not null)
@@ -238,7 +238,6 @@ else
                             {
                                 <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
                             }
-                            <a asp-page="/Stock/Move" asp-route-id="@stockRow.Stock.StockId" class="btn-icon" title="Move" aria-label="Move"><partial name="_Icon" model="@("arrow-left-right")" /></a>
                             <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stockRow.Stock.StockId" class="d-inline">
                                 <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1">1</button>
                             </form>
@@ -256,6 +255,7 @@ else
                             {
                                 <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
                             }
+                            <a asp-page="/Stock/Move" asp-route-id="@stockRow.Stock.StockId" class="btn-icon" title="Move" aria-label="Move"><partial name="_Icon" model="@("arrow-left-right")" /></a>
                             @if (stockRow.Stock.OpenedAt is not null)
                             {
                                 <form method="post" asp-page-handler="Finish" asp-route-stockId="@stockRow.Stock.StockId" class="d-inline">
