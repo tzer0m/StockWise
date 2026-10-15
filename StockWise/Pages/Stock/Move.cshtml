@@ -1,0 +1,48 @@
+@page "{id:int}"
+@model StockWise.Pages.Stock.MoveModel
+@{
+    ViewData["Title"] = "Move Item";
+}
+
+<h2 class="mb-1">@Model.ItemTitle</h2>
+<div class="h6 text-muted mb-4">@Model.Stock?.Item?.Barcode</div>
+
+@if (Model.AllowedLocations.Count == 0)
+{
+    <p>There are no other locations this item can be moved to.</p>
+    <a asp-page="/Index" class="btn btn-outline-secondary">Back</a>
+}
+else
+{
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        <div class="form-row">
+            <label class="form-label">Current Location</label>
+            <div class="form-row-control">
+                <input class="form-control" value="@Model.Stock?.Location?.Name" readonly />
+            </div>
+        </div>
+        <div class="form-row">
+            <label asp-for="LocationId" class="form-label">New Location</label>
+            <div class="form-row-control">
+                <select asp-for="LocationId" class="form-select" required>
+                    <option value="">-- Select a location --</option>
+                    @foreach (StockWise.Models.Location location in Model.AllowedLocations)
+                    {
+                        <option value="@location.LocationId">@location.Category?.Name - @location.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="LocationId" class="field-validation-error"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <label asp-for="Quantity" class="form-label">Quantity</label>
+            <div class="form-row-control">
+                <input asp-for="Quantity" class="form-control" type="number" min="1" max="@Model.Stock?.Quantity" required />
+                <span asp-validation-for="Quantity" class="field-validation-error"></span>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Move</button>
+        <a asp-page="/Index" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+}

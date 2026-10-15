@@ -112,6 +112,15 @@ namespace StockWise.Services
         public Task LogStockOpenedAsync(string itemName, string locationName) => LogAsync($"{itemName} opened, moved to {locationName}.");
 
         /// <summary>
+        /// Logs that stock was moved between locations.
+        /// </summary>
+        /// <param name="itemName">The item's display name.</param>
+        /// <param name="quantity">The quantity moved.</param>
+        /// <param name="fromLocationName">The location it was moved from.</param>
+        /// <param name="toLocationName">The location it was moved to.</param>
+        public Task LogStockMovedAsync(string itemName, int quantity, string fromLocationName, string toLocationName) => LogAsync($"{quantity} x {itemName} moved from {fromLocationName} to {toLocationName}.");
+
+        /// <summary>
         /// Logs that a frozen meal batch was added.
         /// </summary>
         /// <param name="name">The meal's display name.</param>
