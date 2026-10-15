@@ -45,6 +45,12 @@ namespace StockWise.Pages.Stock
         public int Quantity { get; set; }
 
         /// <summary>
+        /// The expiry date for the moved stock, if any.
+        /// </summary>
+        [BindProperty]
+        public DateOnly? Expiry { get; set; }
+
+        /// <summary>
         /// Loads the stock row to move and its allowed destination locations.
         /// </summary>
         /// <param name="id">The ID of the stock row to move.</param>
@@ -56,11 +62,12 @@ namespace StockWise.Pages.Stock
             }
 
             Quantity = Stock!.Quantity;
+            Expiry = Stock.Expiry;
             return Page();
         }
 
         /// <summary>
-        /// Moves the chosen quantity to the new location, merging into a matching unopened row if one exists.
+        /// Moves the chosen quantity to the new location with the chosen expiry, merging into a matching unopened row if one exists.
         /// </summary>
         /// <param name="id">The ID of the stock row to move.</param>
         public async Task<IActionResult> OnPostAsync(int id)
@@ -87,7 +94,7 @@ namespace StockWise.Pages.Stock
 
             string fromLocationName = Stock.Location?.Name ?? string.Empty;
             string toLocationName = AllowedLocations.First(x => x.LocationId == LocationId).Name;
-            StockWise.Models.Stock? existing = Stock.OpenedAt is null ? await db.Stock.FirstOrDefaultAsync(x => x.ItemId == Stock.ItemId && x.LocationId == LocationId && x.Expiry == Stock.Expiry && x.OpenedAt == null) : null;
+            StockWise.Models.Stock? existing = Stock.OpenedAt is null ? await db.Stock.FirstOrDefaultAsync(x => x.ItemId == Stock.ItemId && x.LocationId == LocationId && x.Expiry == Expiry && x.OpenedAt == null) : null;
             if (existing is not null)
             {
                 existing.Quantity += Quantity;
@@ -100,11 +107,12 @@ namespace StockWise.Pages.Stock
             else if (Quantity == Stock.Quantity)
             {
                 Stock.LocationId = LocationId;
+                Stock.Expiry = Expiry;
             }
             else
             {
                 Stock.Quantity -= Quantity;
-                db.Stock.Add(new StockWise.Models.Stock { ItemId = Stock.ItemId, LocationId = LocationId, Quantity = Quantity, Expiry = Stock.Expiry, AddedAt = Stock.AddedAt, OpenedAt = Stock.OpenedAt });
+                db.Stock.Add(new StockWise.Models.Stock { ItemId = Stock.ItemId, LocationId = LocationId, Quantity = Quantity, Expiry = Expiry, AddedAt = Stock.AddedAt, OpenedAt = Stock.OpenedAt });
             }
 
             await db.SaveChangesAsync();

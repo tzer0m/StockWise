@@ -42,6 +42,12 @@ else
                 <span asp-validation-for="Quantity" class="field-validation-error"></span>
             </div>
         </div>
+        <div class="form-row">
+            <label asp-for="Expiry" class="form-label">Expiry</label>
+            <div class="form-row-control">
+                <input asp-for="Expiry" class="form-control" type="date" />
+            </div>
+        </div>
         <button type="submit" class="btn btn-primary">Move</button>
         <a asp-page="/Index" class="btn btn-outline-secondary">Cancel</a>
     </form>
