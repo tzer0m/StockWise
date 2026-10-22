@@ -1,0 +1,48 @@
+@page "{id:int}"
+@model StockWise.Pages.Meals.MoveModel
+@{
+    ViewData["Title"] = "Move Meal";
+}
+
+<h2 class="mb-4">@Model.Meal?.Name</h2>
+
+@if (Model.AllowedLocations.Count == 0)
+{
+    <p>There are no other locations this meal can be moved to.</p>
+    <a asp-page="/Index" class="btn btn-outline-secondary">Back</a>
+}
+else
+{
+    <form method="post">
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2"></div>
+        <input type="hidden" asp-for="InstanceId" />
+        <div class="form-row">
+            <label class="form-label">Current Location</label>
+            <div class="form-row-control">
+                <div class="form-control-plaintext">@Model.Meal?.Location?.Category?.Name - @Model.Meal?.Location?.Name</div>
+            </div>
+        </div>
+        <div class="form-row">
+            <label asp-for="LocationId" class="form-label">New Location</label>
+            <div class="form-row-control">
+                <select asp-for="LocationId" class="form-select" required>
+                    <option value="">-- Select a location --</option>
+                    @foreach (StockWise.Models.Location location in Model.AllowedLocations)
+                    {
+                        <option value="@location.LocationId">@location.Category?.Name - @location.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="LocationId" class="field-validation-error"></span>
+            </div>
+        </div>
+        <div class="form-row">
+            <label asp-for="Quantity" class="form-label">Quantity</label>
+            <div class="form-row-control">
+                <input asp-for="Quantity" class="form-control" type="number" min="1" max="@Model.Meal?.Instances.Count" required />
+                <span asp-validation-for="Quantity" class="field-validation-error"></span>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Move</button>
+        <a asp-page="/Index" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+}

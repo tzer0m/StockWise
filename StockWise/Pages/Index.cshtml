@@ -33,9 +33,12 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="h4 mb-0">@Model.ScannedMealInstance.Meal?.Name</h2>
-                    <form method="post" asp-page-handler="Eat" asp-route-mealInstanceId="@Model.ScannedMealInstance.MealInstanceId">
-                        <button type="submit" class="btn btn-primary btn-sm">Eat</button>
-                    </form>
+                    <div class="d-flex gap-1">
+                        <form method="post" asp-page-handler="Eat" asp-route-mealInstanceId="@Model.ScannedMealInstance.MealInstanceId">
+                            <button type="submit" class="btn btn-primary btn-sm">Eat</button>
+                        </form>
+                        <a asp-page="/Meals/Move" asp-route-id="@Model.ScannedMealInstance.MealId" asp-route-instanceId="@Model.ScannedMealInstance.MealInstanceId" data-scan-action="move" class="btn btn-outline-secondary btn-sm"><partial name="_Icon" model="@("arrow-left-right")" />Move</a>
+                    </div>
                 </div>
                 <table class="table mb-0 table-cards">
                     <tbody>
@@ -274,7 +277,7 @@ else
                             <form method="post" asp-page-handler="Eat" asp-route-mealInstanceId="@mealRow.Meal.Instances[0].MealInstanceId" class="d-inline">
                                 <button type="submit" class="btn-icon" title="Eat" aria-label="Eat">Eat</button>
                             </form>
-                            <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
+                            <a asp-page="/Meals/Move" asp-route-id="@mealRow.Meal.MealId" class="btn-icon" title="Move" aria-label="Move"><partial name="_Icon" model="@("arrow-left-right")" /></a>
                             <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
                         }
                     </td>

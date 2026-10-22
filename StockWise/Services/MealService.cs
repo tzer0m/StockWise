@@ -88,6 +88,56 @@ namespace StockWise.Services
         }
 
         /// <summary>
+        /// Finds the meal batch for the given ID, with its location, category, and instances loaded, if one exists.
+        /// </summary>
+        /// <param name="mealId">The ID of the batch.</param>
+        public async Task<Meal?> FindAsync(int mealId)
+        {
+            return await db.Meals.Include(x => x.Location).ThenInclude(x => x!.Category).Include(x => x.Instances).FirstOrDefaultAsync(x => x.MealId == mealId);
+        }
+
+        /// <summary>
+        /// Moves some or all of a batch's instances to a new location, preferring the given instance first. Moving the whole batch just relocates it; moving part of it merges the moved instances into a matching batch (same name and frozen date) at the destination, or splits them off into a new batch there.
+        /// </summary>
+        /// <param name="meal">The batch to move from, with its location and instances loaded.</param>
+        /// <param name="locationId">The location to move to.</param>
+        /// <param name="quantity">The number of instances to move.</param>
+        /// <param name="preferredInstanceId">The instance to move first, such as the one that was scanned, if any.</param>
+        public async Task MoveAsync(Meal meal, int locationId, int quantity, Guid? preferredInstanceId)
+        {
+            string fromLocationName = meal.Location?.Name ?? string.Empty;
+            Location? toLocation = await db.Locations.FindAsync(locationId);
+            List<MealInstance> toMove = [.. meal.Instances.OrderByDescending(x => x.MealInstanceId == preferredInstanceId).Take(quantity)];
+            Meal? existing = await db.Meals.FirstOrDefaultAsync(x => x.MealId != meal.MealId && x.Name == meal.Name && x.FrozenAt == meal.FrozenAt && x.LocationId == locationId);
+
+            if (existing is null && toMove.Count == meal.Instances.Count)
+            {
+                meal.LocationId = locationId;
+            }
+            else
+            {
+                Meal target = existing ?? new Meal { Name = meal.Name, LocationId = locationId, FrozenAt = meal.FrozenAt, Expiry = meal.Expiry };
+                if (existing is null)
+                {
+                    db.Meals.Add(target);
+                }
+
+                foreach (MealInstance instance in toMove)
+                {
+                    instance.Meal = target;
+                }
+
+                if (toMove.Count == meal.Instances.Count)
+                {
+                    db.Meals.Remove(meal);
+                }
+            }
+
+            await db.SaveChangesAsync();
+            await historyService.LogMealMovedAsync(meal.Name, toMove.Count, fromLocationName, toLocation?.Name ?? string.Empty);
+        }
+
+        /// <summary>
         /// Returns every meal batch with at least one remaining instance, with its location and instances loaded, for display alongside stock.
         /// </summary>
         public async Task<List<Meal>> GetAllWithInstancesAsync()

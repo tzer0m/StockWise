@@ -135,6 +135,15 @@ namespace StockWise.Services
         public Task LogMealEatenAsync(string name) => LogAsync($"{name} eaten.");
 
         /// <summary>
+        /// Logs that meal instances were moved between locations.
+        /// </summary>
+        /// <param name="name">The meal's display name.</param>
+        /// <param name="quantity">The number of instances moved.</param>
+        /// <param name="fromLocationName">The location they were moved from.</param>
+        /// <param name="toLocationName">The location they were moved to.</param>
+        public Task LogMealMovedAsync(string name, int quantity, string fromLocationName, string toLocationName) => LogAsync($"{quantity} x {name} moved from {fromLocationName} to {toLocationName}.");
+
+        /// <summary>
         /// Records a history message with the current UTC timestamp.
         /// </summary>
         /// <param name="message">The message to record.</param>
