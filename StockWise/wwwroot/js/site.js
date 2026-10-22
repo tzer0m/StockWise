@@ -235,3 +235,42 @@ document.addEventListener('DOMContentLoaded', function () {
         window.location.href = window.location.pathname;
     }, refreshIntervalMs);
 });
+
+// Autofocuses [data-autofocus] inputs only when a physical keyboard (or keyboard-emulating barcode scanner) is likely attached, so touch devices don't pop up the on-screen keyboard on every page load. Devices with a fine pointer are assumed to have one; on touch-only devices, the first hardware keypress (which an on-screen keyboard can't produce with nothing focused) focuses the input, so the keystroke lands in it, and is remembered so later page loads autofocus straight away.
+document.addEventListener('DOMContentLoaded', function () {
+    var target = document.querySelector('[data-autofocus]');
+    if (!target) {
+        return;
+    }
+
+    var storageKey = 'stockwise-has-keyboard';
+    var rememberedKeyboard = false;
+    try {
+        rememberedKeyboard = localStorage.getItem(storageKey) === 'true';
+    } catch (e) {
+    }
+
+    if (rememberedKeyboard || window.matchMedia('(pointer: fine)').matches) {
+        target.focus();
+        return;
+    }
+
+    document.addEventListener('keydown', function onFirstKeydown(event) {
+        var active = document.activeElement;
+        if (active && active !== document.body && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.isContentEditable)) {
+            return;
+        }
+
+        if (event.ctrlKey || event.altKey || event.metaKey) {
+            return;
+        }
+
+        document.removeEventListener('keydown', onFirstKeydown);
+        try {
+            localStorage.setItem(storageKey, 'true');
+        } catch (e) {
+        }
+
+        target.focus();
+    });
+});

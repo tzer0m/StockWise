@@ -14,7 +14,7 @@
         }
         else
         {
-            <input asp-for="Barcode" class="form-control" autofocus required />
+            <input asp-for="Barcode" class="form-control" data-autofocus required />
             <span asp-validation-for="Barcode" class="field-validation-error"></span>
         }
     </div>
@@ -24,7 +24,7 @@
     <div class="form-row-control">
         @if (barcodeReadOnly)
         {
-            <input asp-for="Name" class="form-control" autocapitalize="words" autofocus required />
+            <input asp-for="Name" class="form-control" autocapitalize="words" data-autofocus required />
         }
         else
         {
