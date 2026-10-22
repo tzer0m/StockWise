@@ -34,7 +34,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="h4 mb-0">@Model.ScannedMealInstance.Meal?.Name</h2>
                     <div class="d-flex gap-1">
-                        <form method="post" asp-page-handler="Eat" asp-route-mealInstanceId="@Model.ScannedMealInstance.MealInstanceId">
+                        <form method="post" asp-page-handler="Eat" asp-route-mealInstanceId="@Model.ScannedMealInstance.MealInstanceId" data-scan-action="checkout1">
                             <button type="submit" class="btn btn-primary btn-sm">Eat</button>
                         </form>
                         <a asp-page="/Meals/Move" asp-route-id="@Model.ScannedMealInstance.MealId" asp-route-instanceId="@Model.ScannedMealInstance.MealInstanceId" data-scan-action="move" class="btn btn-outline-secondary btn-sm"><partial name="_Icon" model="@("arrow-left-right")" />Move</a>
