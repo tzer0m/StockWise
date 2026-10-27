@@ -1,5 +1,7 @@
 # StockWise
 
+[![Deploy](https://github.com/tzer0m/StockWise/actions/workflows/deploy.yml/badge.svg)](https://github.com/tzer0m/StockWise/actions/workflows/deploy.yml) [![Dependabot](https://github.com/tzer0m/StockWise/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/tzer0m/StockWise/actions/workflows/dependabot/dependabot-updates)
+
 A self-hosted home inventory tracker for food stock, built with ASP.NET Core Razor Pages, EF Core, and PostgreSQL.
 
 ## Features
