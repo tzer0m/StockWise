@@ -1,23 +1,18 @@
 namespace StockWise.Models
 {
     /// <summary>
-    /// The compact stock summary shown by the Tidgets home screen widget.
+    /// The expired and expiring items shown by the Tidgets home screen widget.
     /// </summary>
     public class WidgetResponse
     {
         /// <summary>
-        /// The widget title.
+        /// Items past their expiry date, oldest first.
         /// </summary>
-        public string Title { get; set; } = string.Empty;
+        public List<WidgetItem> Expired { get; set; } = [];
 
         /// <summary>
-        /// The main value, how many items are expired or expiring.
+        /// Items expiring within the warning window, soonest first.
         /// </summary>
-        public string Value { get; set; } = string.Empty;
-
-        /// <summary>
-        /// The supporting line, the next item to go off or how many more are expiring.
-        /// </summary>
-        public string Subtitle { get; set; } = string.Empty;
+        public List<WidgetItem> Expiring { get; set; } = [];
     }
 }
