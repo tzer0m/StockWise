@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using StockWise.Data;
+using StockWise.Endpoints;
 using StockWise.Services;
 using t0m.Ting;
 
@@ -14,6 +15,7 @@ builder.Services.AddScoped<HistoryService>();
 builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<StockService>();
 builder.Services.AddScoped<MealService>();
+builder.Services.AddScoped<WidgetService>();
 builder.Services.AddHttpClient<ChitterClient>(client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Chitter:BaseUrl"] ?? throw new InvalidOperationException("Chitter:BaseUrl is not configured"));
@@ -60,5 +62,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapStaticAssets();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
+app.MapGet("/api/widget", WidgetEndpoint.GetAsync);
 app.MapRazorPages().WithStaticAssets();
 app.Run();
