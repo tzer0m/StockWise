@@ -10,7 +10,7 @@ namespace StockWise.Services
     /// </summary>
     /// <param name="scopeFactory">Used to create a scope per run, since the database context is scoped.</param>
     /// <param name="tingClient">The Ting notification client.</param>
-    /// <param name="configuration">Used to read the run time and warning window from appsettings.</param>
+    /// <param name="configuration">Used to read the run time, warning window and site URL from appsettings.</param>
     public class ExpiryNotificationService(IServiceScopeFactory scopeFactory, TingClient tingClient, IConfiguration configuration) : BackgroundService
     {
         /// <summary>
@@ -82,7 +82,7 @@ namespace StockWise.Services
 
             string body = string.Join("\n", lines);
             string title = expiring.Count == 1 ? "StockWise: 1 Item Expiring" : $"StockWise: {expiring.Count} Items Expiring";
-            await tingClient.SendAsync(title, body);
+            await tingClient.SendAsync(title, body, configuration["SiteUrl"]);
         }
     }
 }
