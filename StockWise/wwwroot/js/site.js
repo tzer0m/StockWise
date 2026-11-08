@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
     syncOpenableDependents();
 });
 
-// Bulk-add scan page: builds a running list of scanned barcodes client-side, aggregating repeats into quantities. Text that isn't a known barcode is searched against item brands and names instead (all words, any order), adding the item if exactly one matches (or exactly one matches the full name).
+// Bulk-add scan page: builds a running list of scanned barcodes client-side, aggregating repeats into quantities.
 document.addEventListener('DOMContentLoaded', function () {
     var input = document.getElementById('bulkBarcodeInput');
     if (!input) {
@@ -74,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     var scanned = [];
-    var messageBox = document.getElementById('bulkScanMessage');
     var list = document.getElementById('bulkScanList');
     var batchInput = document.getElementById('bulkBatchInput');
     var reviewButton = document.getElementById('bulkReviewButton');
@@ -110,70 +109,14 @@ document.addEventListener('DOMContentLoaded', function () {
         reviewButton.disabled = scanned.length === 0;
     }
 
-    function showMessage(text) {
-        messageBox.textContent = text;
-        messageBox.classList.remove('d-none');
-    }
-
-    function hideMessage() {
-        messageBox.classList.add('d-none');
-    }
-
-    function fullName(item) {
-        return ((item.Brand || '') + ' ' + item.Name).trim();
-    }
-
-    function matchesSearch(item, searchText) {
-        var text = fullName(item).toLowerCase();
-        var words = searchText.toLowerCase().split(' ').filter(function (word) { return word; });
-        return words.length > 0 && words.every(function (word) { return text.indexOf(word) !== -1; });
-    }
-
-    // Resolves the entered text to a barcode: a known barcode as-is, otherwise a single name match, otherwise an unknown barcode if it looks like one. Returns null, after showing why, when it can't.
-    function resolveBarcode(text) {
-        if (Object.prototype.hasOwnProperty.call(namesByBarcode, text)) {
-            return text;
-        }
-
-        var matches = lookupItems.filter(function (item) { return matchesSearch(item, text); });
-        if (matches.length > 1) {
-            var exact = matches.filter(function (item) { return item.Name.toLowerCase() === text.toLowerCase() || fullName(item).toLowerCase() === text.toLowerCase(); });
-            if (exact.length === 1) {
-                return exact[0].Barcode;
-            }
-
-            showMessage(matches.length + ' items match "' + text + '": ' + matches.map(fullName).join(', ') + '. Be more specific.');
-            return null;
-        }
-
-        if (matches.length === 1) {
-            return matches[0].Barcode;
-        }
-
-        if (/^\d+$/.test(text)) {
-            return text;
-        }
-
-        showMessage('No items match "' + text + '".');
-        return null;
-    }
-
-    input.addEventListener('input', hideMessage);
-
     input.addEventListener('keydown', function (event) {
         if (event.key !== 'Enter') {
             return;
         }
 
         event.preventDefault();
-        var text = input.value.trim();
+        var barcode = input.value.trim();
         input.value = '';
-        if (!text) {
-            return;
-        }
-
-        hideMessage();
-        var barcode = resolveBarcode(text);
         if (!barcode) {
             return;
         }
@@ -329,5 +272,32 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         target.focus();
+    });
+});
+// Search bars marked [data-live-search]: filters the page's [data-search] rows as you type, matching every word against the row's brand and name in any order. Skips all-digit text (a barcode being scanned) and quick-action codes, which are only handled on Enter.
+document.addEventListener('DOMContentLoaded', function () {
+    var input = document.querySelector('[data-live-search]');
+    var rows = document.querySelectorAll('[data-search]');
+    var emptyMessage = document.querySelector('[data-live-search-empty]');
+    if (!input || rows.length === 0) {
+        return;
+    }
+
+    input.addEventListener('input', function () {
+        var text = input.value.trim().toLowerCase();
+        var words = /^\d*$/.test(text) || text.indexOf('sw-action:') === 0 ? [] : text.split(' ').filter(function (word) { return word; });
+        var visibleCount = 0;
+        rows.forEach(function (row) {
+            var rowText = row.getAttribute('data-search').toLowerCase();
+            var isMatch = words.every(function (word) { return rowText.indexOf(word) !== -1; });
+            row.classList.toggle('d-none', !isMatch);
+            if (isMatch) {
+                visibleCount++;
+            }
+        });
+
+        if (emptyMessage) {
+            emptyMessage.classList.toggle('d-none', visibleCount > 0);
+        }
     });
 });

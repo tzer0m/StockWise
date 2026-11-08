@@ -31,16 +31,6 @@ namespace StockWise.Services
         }
 
         /// <summary>
-        /// Returns every item whose brand and name contain all the words in the search text, ordered by name.
-        /// </summary>
-        /// <param name="searchText">The text to search for.</param>
-        public async Task<List<Item>> SearchByNameAsync(string searchText)
-        {
-            List<Item> items = await db.Items.Include(x => x.Type).OrderBy(x => x.Name).ToListAsync();
-            return [.. items.Where(x => MatchesSearch(x, searchText))];
-        }
-
-        /// <summary>
         /// Checks whether an item's brand and name contain all the words in the search text, ignoring case and word order.
         /// </summary>
         /// <param name="item">The item to check.</param>
@@ -156,11 +146,11 @@ namespace StockWise.Services
         }
 
         /// <summary>
-        /// Returns every item's barcode, display name, and brand, for client-side matching while scanning a batch.
+        /// Returns every item's barcode and display name, for client-side matching while scanning a batch.
         /// </summary>
         public async Task<List<BarcodeNameLookup>> GetBarcodeNameLookupAsync()
         {
-            return await db.Items.Select(x => new BarcodeNameLookup { Barcode = x.Barcode, Name = x.Name, Brand = x.Brand }).ToListAsync();
+            return await db.Items.Select(x => new BarcodeNameLookup { Barcode = x.Barcode, Name = x.Name }).ToListAsync();
         }
 
         /// <summary>

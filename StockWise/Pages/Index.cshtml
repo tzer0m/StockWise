@@ -7,7 +7,7 @@
 
 <form method="get" class="mb-4">
     <div class="mb-3">
-        <input type="text" name="Barcode" class="form-control" data-autofocus autocomplete="off" placeholder="Scan a barcode or search..." />
+        <input type="text" name="Barcode" class="form-control" data-autofocus data-live-search autocomplete="off" placeholder="Scan a barcode or search..." />
     </div>
 </form>
 
@@ -208,7 +208,7 @@ else
         <tbody>
             @foreach (IInventoryRow row in Model.AllRows)
             {
-                <tr class="category-row" style="--cat-color: @(row.CategoryColor ?? "#6c757d");">
+                <tr class="category-row" style="--cat-color: @(row.CategoryColor ?? "#6c757d");" data-search="@(row is MealRow ? row.Name : $"{row.Brand} {row.Name}")">
                     <td class="cell-heading">
                         <span class="d-md-none">@(string.IsNullOrWhiteSpace(row.Brand) ? row.Name : $"{row.Brand} {row.Name}")</span>
                         <span class="d-none d-md-inline">@row.Name</span>
@@ -299,4 +299,5 @@ else
             }
         </tbody>
     </table>
+    <p class="d-none" data-live-search-empty>No matching stock.</p>
 }

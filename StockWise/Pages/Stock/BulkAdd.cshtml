@@ -7,10 +7,8 @@
 @if (string.IsNullOrWhiteSpace(Model.Batch))
 {
     <div class="mb-3">
-        <input id="bulkBarcodeInput" class="form-control" data-autofocus autocomplete="off" placeholder="Scan a barcode or search..." />
+        <input id="bulkBarcodeInput" class="form-control" data-autofocus autocomplete="off" placeholder="Scan a barcode..." />
     </div>
-
-    <div id="bulkScanMessage" class="alert alert-warning d-none mb-3"></div>
 
     <ul id="bulkScanList" class="list-group mb-3"></ul>
 

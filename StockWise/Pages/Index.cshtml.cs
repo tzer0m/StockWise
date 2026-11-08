@@ -13,8 +13,7 @@ namespace StockWise.Pages
     /// <param name="db">The database context.</param>
     /// <param name="mealService">The meal service.</param>
     /// <param name="historyService">The history service.</param>
-    /// <param name="itemService">The item service.</param>
-    public class IndexModel(StockWiseDbContext db, MealService mealService, HistoryService historyService, ItemService itemService) : PageModel
+    public class IndexModel(StockWiseDbContext db, MealService mealService, HistoryService historyService) : PageModel
     {
         /// <summary>
         /// All current stock and meal rows, sorted together and filtered by the selected types, if any.
@@ -116,7 +115,7 @@ namespace StockWise.Pages
             List<IInventoryRow> rows = [.. stockList.Select(x => new StockRow(x)), .. meals.Select(x => new MealRow(x))];
             AvailableTypeNames = [.. rows.Select(x => x.TypeName).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x)];
 
-            await LoadScannedItemAsync(meals);
+            await LoadScannedItemAsync(stockList, meals);
             List<IInventoryRow> filteredRows = IsSearchResults ? [.. rows.Where(IsSearchMatch)] : rows;
             if (Types.Count > 0)
             {
@@ -345,8 +344,9 @@ namespace StockWise.Pages
         /// <summary>
         /// Looks up the item for the scanned barcode and its current stock rows, or - if no item matches and the barcode parses as a guid - the meal instance it identifies, or failing both, searches items and meals by name.
         /// </summary>
+        /// <param name="stockList">Every current stock row with its item loaded, so only items with stock are searched by name.</param>
         /// <param name="meals">Every meal batch, to search by name.</param>
-        private async Task LoadScannedItemAsync(List<Meal> meals)
+        private async Task LoadScannedItemAsync(List<StockWise.Models.Stock> stockList, List<Meal> meals)
         {
             if (string.IsNullOrWhiteSpace(Barcode))
             {
@@ -369,9 +369,9 @@ namespace StockWise.Pages
                 }
             }
 
-            // Not a known barcode, so search by name: a single item match shows its card as if scanned, anything else filters the main table.
+            // Not a known barcode, so search stocked items and meals by name: a single item match shows its card as if scanned, anything else filters the main table.
             string searchText = Barcode.Trim();
-            List<Item> matchedItems = await itemService.SearchByNameAsync(searchText);
+            List<Item> matchedItems = [.. stockList.Select(x => x.Item).OfType<Item>().DistinctBy(x => x.ItemId).Where(x => ItemService.MatchesSearch(x, searchText))];
             List<Meal> matchedMeals = [.. meals.Where(x => ItemService.MatchesSearch(x.Name, searchText))];
             if (matchedItems.Count == 1 && matchedMeals.Count == 0)
             {
