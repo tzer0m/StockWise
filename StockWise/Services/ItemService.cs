@@ -31,6 +31,46 @@ namespace StockWise.Services
         }
 
         /// <summary>
+        /// Returns every item whose brand and name contain all the words in the search text, ordered by name.
+        /// </summary>
+        /// <param name="searchText">The text to search for.</param>
+        public async Task<List<Item>> SearchByNameAsync(string searchText)
+        {
+            List<Item> items = await db.Items.Include(x => x.Type).OrderBy(x => x.Name).ToListAsync();
+            return [.. items.Where(x => MatchesSearch(x, searchText))];
+        }
+
+        /// <summary>
+        /// Checks whether an item's brand and name contain all the words in the search text, ignoring case and word order.
+        /// </summary>
+        /// <param name="item">The item to check.</param>
+        /// <param name="searchText">The text to search for.</param>
+        public static bool MatchesSearch(Item item, string searchText)
+        {
+            return MatchesSearch($"{item.Brand} {item.Name}", searchText);
+        }
+
+        /// <summary>
+        /// Checks whether some text contains all the words in the search text, ignoring case and word order.
+        /// </summary>
+        /// <param name="text">The text to search within.</param>
+        /// <param name="searchText">The text to search for.</param>
+        public static bool MatchesSearch(string text, string searchText)
+        {
+            string[] words = searchText.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            return words.Length > 0 && words.All(x => text.Contains(x, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Checks whether some search bar text looks like a barcode, i.e. is all digits, rather than a product name.
+        /// </summary>
+        /// <param name="text">The search bar text.</param>
+        public static bool LooksLikeBarcode(string text)
+        {
+            return text.Length > 0 && text.All(char.IsDigit);
+        }
+
+        /// <summary>
         /// Returns the locations allowed for an item while unopened, ordered by category then name.
         /// </summary>
         /// <param name="item">The item to find allowed locations for.</param>
@@ -116,11 +156,11 @@ namespace StockWise.Services
         }
 
         /// <summary>
-        /// Returns every item's barcode and display name, for client-side matching while scanning a batch.
+        /// Returns every item's barcode, display name, and brand, for client-side matching while scanning a batch.
         /// </summary>
         public async Task<List<BarcodeNameLookup>> GetBarcodeNameLookupAsync()
         {
-            return await db.Items.Select(x => new BarcodeNameLookup { Barcode = x.Barcode, Name = x.Name }).ToListAsync();
+            return await db.Items.Select(x => new BarcodeNameLookup { Barcode = x.Barcode, Name = x.Name, Brand = x.Brand }).ToListAsync();
         }
 
         /// <summary>

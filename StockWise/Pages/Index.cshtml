@@ -7,7 +7,7 @@
 
 <form method="get" class="mb-4">
     <div class="mb-3">
-        <input type="text" name="Barcode" class="form-control" data-autofocus autocomplete="off" placeholder="Scan a barcode..." />
+        <input type="text" name="Barcode" class="form-control" data-autofocus autocomplete="off" placeholder="Scan a barcode or search..." />
     </div>
 </form>
 
@@ -20,12 +20,26 @@
 
 @if (!string.IsNullOrWhiteSpace(Model.Barcode))
 {
-    @if (Model.ScannedItem is null && Model.ScannedMealInstance is null)
+    @if (Model.IsSearchResults)
     {
-        <div class="alert alert-warning d-flex justify-content-between align-items-center">
-            "@Model.Barcode" not found.
-            <a asp-page="/Manage/Items/Add" asp-route-barcode="@Model.Barcode" class="btn btn-primary btn-sm">Add</a>
+        <div class="alert alert-info d-flex justify-content-between align-items-center">
+            Showing results for "@Model.Barcode".
+            <a href="@Model.ClearSearchUrl" class="btn btn-outline-secondary btn-sm">Clear</a>
         </div>
+    }
+    else if (Model.ScannedItem is null && Model.ScannedMealInstance is null)
+    {
+        @if (Model.BarcodeLooksValid)
+        {
+            <div class="alert alert-warning d-flex justify-content-between align-items-center">
+                "@Model.Barcode" not found.
+                <a asp-page="/Manage/Items/Add" asp-route-barcode="@Model.Barcode" class="btn btn-primary btn-sm">Add</a>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning">No items or meals match "@Model.Barcode".</div>
+        }
     }
     else if (Model.ScannedMealInstance is not null)
     {
@@ -71,7 +85,7 @@
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h2 class="h4 mb-0">@Model.ScannedItemTitle</h2>
                     <div>
-                        <a asp-page="/Stock/Add" asp-route-barcode="@Model.Barcode" class="btn btn-primary btn-sm"><partial name="_Icon" model="@("plus-lg")" />Add Stock</a>
+                        <a asp-page="/Stock/Add" asp-route-barcode="@Model.ScannedItem.Barcode" class="btn btn-primary btn-sm"><partial name="_Icon" model="@("plus-lg")" />Add Stock</a>
                         <a asp-page="/Manage/Items/Edit" asp-route-id="@Model.ScannedItem.ItemId" class="btn btn-outline-secondary btn-sm"><partial name="_Icon" model="@("pencil")" />Edit Item</a>
                     </div>
                 </div>
@@ -174,7 +188,7 @@
 
 @if (Model.AllRows.Count == 0)
 {
-    <p>No stock currently held.</p>
+    <p>@(Model.IsSearchResults ? "No stock currently held for the matching items." : "No stock currently held.")</p>
 }
 else
 {
@@ -241,14 +255,14 @@ else
                             {
                                 <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
                             }
-                            <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stockRow.Stock.StockId" class="d-inline">
+                            <form method="post" asp-page-handler="Checkout" asp-route-stockId="@stockRow.Stock.StockId" asp-route-barcode="@(Model.IsSearchResults ? Model.Barcode : null)" class="d-inline">
                                 <button type="submit" class="btn-icon" title="Checkout 1" aria-label="Checkout 1">1</button>
                             </form>
                             @if (stockRow.Stock.Quantity > 1)
                             {
                                 <span class="checkout-multi d-inline-block position-relative">
                                     <button type="button" class="btn-icon checkout-multi-toggle" title="Checkout multiple" aria-label="Checkout multiple">#</button>
-                                    <form method="post" asp-page-handler="CheckoutMultiple" asp-route-stockId="@stockRow.Stock.StockId" class="checkout-multi-form d-none align-items-center gap-2">
+                                    <form method="post" asp-page-handler="CheckoutMultiple" asp-route-stockId="@stockRow.Stock.StockId" asp-route-barcode="@(Model.IsSearchResults ? Model.Barcode : null)" class="checkout-multi-form d-none align-items-center gap-2">
                                         <input type="number" name="quantity" min="1" max="@stockRow.Stock.Quantity" value="@stockRow.Stock.Quantity" class="form-control form-control-sm" />
                                         <button type="submit" class="btn btn-primary btn-sm">Go</button>
                                     </form>
@@ -261,7 +275,7 @@ else
                             <a asp-page="/Stock/Move" asp-route-id="@stockRow.Stock.StockId" class="btn-icon" title="Move" aria-label="Move"><partial name="_Icon" model="@("arrow-left-right")" /></a>
                             @if (stockRow.Stock.OpenedAt is not null)
                             {
-                                <form method="post" asp-page-handler="Finish" asp-route-stockId="@stockRow.Stock.StockId" class="d-inline">
+                                <form method="post" asp-page-handler="Finish" asp-route-stockId="@stockRow.Stock.StockId" asp-route-barcode="@(Model.IsSearchResults ? Model.Barcode : null)" class="d-inline">
                                     <button type="submit" class="btn-icon" title="Finish" aria-label="Finish"><partial name="_Icon" model="@("check2-circle")" /></button>
                                 </form>
                             }
@@ -274,7 +288,7 @@ else
                         {
                             <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
                             <span class="btn-icon btn-icon-placeholder" aria-hidden="true"></span>
-                            <form method="post" asp-page-handler="Eat" asp-route-mealInstanceId="@mealRow.Meal.Instances[0].MealInstanceId" class="d-inline">
+                            <form method="post" asp-page-handler="Eat" asp-route-mealInstanceId="@mealRow.Meal.Instances[0].MealInstanceId" asp-route-barcode="@(Model.IsSearchResults ? Model.Barcode : null)" class="d-inline">
                                 <button type="submit" class="btn-icon" title="Eat" aria-label="Eat">Eat</button>
                             </form>
                             <a asp-page="/Meals/Move" asp-route-id="@mealRow.Meal.MealId" class="btn-icon" title="Move" aria-label="Move"><partial name="_Icon" model="@("arrow-left-right")" /></a>

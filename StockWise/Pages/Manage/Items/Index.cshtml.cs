@@ -8,7 +8,7 @@ using StockWise.Services;
 namespace StockWise.Pages.Manage.Items
 {
     /// <summary>
-    /// Page model for listing and deleting trackable items, and for scanning a barcode to check whether it's already known or add it if not.
+    /// Page model for listing and deleting trackable items, searching them by name, and scanning a barcode to check whether it's already known or add it if not.
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="historyService">The history service.</param>
@@ -20,7 +20,7 @@ namespace StockWise.Pages.Manage.Items
         public List<Item> Items { get; set; } = [];
 
         /// <summary>
-        /// The scanned barcode.
+        /// The scanned barcode, or product name search text.
         /// </summary>
         [BindProperty(SupportsGet = true)]
         public string? Barcode { get; set; }
@@ -43,6 +43,11 @@ namespace StockWise.Pages.Manage.Items
         public bool ItemAlreadyExists { get; set; }
 
         /// <summary>
+        /// Whether the search bar text was a name search, so the items table is filtered to its matches.
+        /// </summary>
+        public bool IsSearchResults { get; set; }
+
+        /// <summary>
         /// The IDs of items that still have stock held, and so can't be deleted.
         /// </summary>
         public HashSet<int> ItemIdsWithStock { get; set; } = [];
@@ -54,7 +59,7 @@ namespace StockWise.Pages.Manage.Items
         public string? ErrorMessage { get; set; }
 
         /// <summary>
-        /// Loads all items. If a barcode was scanned, shows a message when it already matches an item, or goes straight into adding it when it doesn't.
+        /// Loads all items. If a barcode was scanned, shows a message when it already matches an item, otherwise filters the items by name, or goes straight into adding it when nothing matches and it looks like a barcode.
         /// </summary>
         public async Task<IActionResult> OnGetAsync()
         {
@@ -69,7 +74,14 @@ namespace StockWise.Pages.Manage.Items
                 }
                 else
                 {
-                    return RedirectToPage("Add", new { barcode = Barcode });
+                    string searchText = Barcode.Trim();
+                    List<Item> matches = [.. Items.Where(x => ItemService.MatchesSearch(x, searchText))];
+                    if (matches.Count == 0 && ItemService.LooksLikeBarcode(searchText))
+                    {
+                        return RedirectToPage("Add", new { barcode = searchText });
+                    }
+                    Items = matches;
+                    IsSearchResults = true;
                 }
             }
 

@@ -1,7 +1,7 @@
 namespace StockWise.Models
 {
     /// <summary>
-    /// A barcode and display name pair, used for client-side item matching while scanning a batch.
+    /// An item's barcode, display name, and brand, used for client-side item matching while scanning a batch.
     /// </summary>
     public class BarcodeNameLookup
     {
@@ -14,5 +14,10 @@ namespace StockWise.Models
         /// The item's display name.
         /// </summary>
         public string Name { get; set; } = string.Empty;
+
+        /// <summary>
+        /// The item's brand, if known.
+        /// </summary>
+        public string? Brand { get; set; }
     }
 }

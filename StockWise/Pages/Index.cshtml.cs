@@ -8,12 +8,13 @@ using StockWise.Services;
 namespace StockWise.Pages
 {
     /// <summary>
-    /// Page model for the home page: a barcode scan hub, a set of type filter buttons, plus a single sortable table combining all current stock and frozen meal batches.
+    /// Page model for the home page: a barcode scan and product name search hub, a set of type filter buttons, plus a single sortable table combining all current stock and frozen meal batches.
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="mealService">The meal service.</param>
     /// <param name="historyService">The history service.</param>
-    public class IndexModel(StockWiseDbContext db, MealService mealService, HistoryService historyService) : PageModel
+    /// <param name="itemService">The item service.</param>
+    public class IndexModel(StockWiseDbContext db, MealService mealService, HistoryService historyService, ItemService itemService) : PageModel
     {
         /// <summary>
         /// All current stock and meal rows, sorted together and filtered by the selected types, if any.
@@ -21,10 +22,25 @@ namespace StockWise.Pages
         public List<IInventoryRow> AllRows { get; set; } = [];
 
         /// <summary>
-        /// The scanned barcode.
+        /// The scanned barcode, or product name search text.
         /// </summary>
         [BindProperty(SupportsGet = true)]
         public string? Barcode { get; set; }
+
+        /// <summary>
+        /// Whether the search bar text matched items or meals by name (other than a single item, which shows its card instead), so the main table is filtered to those matches.
+        /// </summary>
+        public bool IsSearchResults { get; set; }
+
+        /// <summary>
+        /// Whether the search bar text looks like a barcode rather than a product name, so an unknown one can be offered for adding.
+        /// </summary>
+        public bool BarcodeLooksValid => ItemService.LooksLikeBarcode(Barcode?.Trim() ?? string.Empty);
+
+        /// <summary>
+        /// The URL to clear the current search while keeping the type filters and sort.
+        /// </summary>
+        public string ClearSearchUrl => BuildIndexUrl(includeBarcode: false, Types);
 
         /// <summary>
         /// The column to sort the combined table by.
@@ -80,7 +96,17 @@ namespace StockWise.Pages
         public string? Message { get; set; }
 
         /// <summary>
-        /// Loads the sorted, type-filtered combined stock/meal rows, plus the scanned item or meal instance if a barcode was given.
+        /// The IDs of the items matched by name when showing search results.
+        /// </summary>
+        private HashSet<int> matchedItemIds = [];
+
+        /// <summary>
+        /// The IDs of the meals matched by name when showing search results.
+        /// </summary>
+        private HashSet<int> matchedMealIds = [];
+
+        /// <summary>
+        /// Loads the sorted, type-filtered combined stock/meal rows, plus the scanned item or meal instance if a barcode was given, or the name search matches if it wasn't a known barcode.
         /// </summary>
         public async Task OnGetAsync()
         {
@@ -90,10 +116,13 @@ namespace StockWise.Pages
             List<IInventoryRow> rows = [.. stockList.Select(x => new StockRow(x)), .. meals.Select(x => new MealRow(x))];
             AvailableTypeNames = [.. rows.Select(x => x.TypeName).Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().OrderBy(x => x)];
 
-            List<IInventoryRow> filteredRows = Types.Count == 0 ? rows : [.. rows.Where(x => Types.Contains(x.TypeName))];
+            await LoadScannedItemAsync(meals);
+            List<IInventoryRow> filteredRows = IsSearchResults ? [.. rows.Where(IsSearchMatch)] : rows;
+            if (Types.Count > 0)
+            {
+                filteredRows = [.. filteredRows.Where(x => Types.Contains(x.TypeName))];
+            }
             AllRows = ApplySort(filteredRows, Sort, Direction == "desc");
-
-            await LoadScannedItemAsync();
         }
 
         /// <summary>
@@ -160,13 +189,13 @@ namespace StockWise.Pages
         }
 
         /// <summary>
-        /// Eats one meal instance, always consuming the whole thing, and deletes its parent batch too if it was the last remaining instance. Always clears the scanned barcode on redirect, since a single-use instance guid no longer resolves to anything once eaten.
+        /// Eats one meal instance, always consuming the whole thing, and deletes its parent batch too if it was the last remaining instance. Clears a scanned instance guid on redirect, since it no longer resolves to anything once eaten, but keeps a name search.
         /// </summary>
         /// <param name="mealInstanceId">The guid of the instance to eat.</param>
         public async Task<IActionResult> OnPostEatAsync(Guid mealInstanceId)
         {
             await mealService.EatAsync(mealInstanceId);
-            return Redirect(BuildIndexUrl(includeBarcode: false, Types));
+            return Redirect(BuildIndexUrl(includeBarcode: !Guid.TryParse(Barcode, out _), Types));
         }
 
         /// <summary>
@@ -314,9 +343,10 @@ namespace StockWise.Pages
         }
 
         /// <summary>
-        /// Looks up the item for the scanned barcode and its current stock rows, or - if no item matches and the barcode parses as a guid - the meal instance it identifies, if any.
+        /// Looks up the item for the scanned barcode and its current stock rows, or - if no item matches and the barcode parses as a guid - the meal instance it identifies, or failing both, searches items and meals by name.
         /// </summary>
-        private async Task LoadScannedItemAsync()
+        /// <param name="meals">Every meal batch, to search by name.</param>
+        private async Task LoadScannedItemAsync(List<Meal> meals)
         {
             if (string.IsNullOrWhiteSpace(Barcode))
             {
@@ -333,7 +363,41 @@ namespace StockWise.Pages
             if (Guid.TryParse(Barcode, out Guid mealInstanceId))
             {
                 ScannedMealInstance = await mealService.FindInstanceAsync(mealInstanceId);
+                if (ScannedMealInstance is not null)
+                {
+                    return;
+                }
             }
+
+            // Not a known barcode, so search by name: a single item match shows its card as if scanned, anything else filters the main table.
+            string searchText = Barcode.Trim();
+            List<Item> matchedItems = await itemService.SearchByNameAsync(searchText);
+            List<Meal> matchedMeals = [.. meals.Where(x => ItemService.MatchesSearch(x.Name, searchText))];
+            if (matchedItems.Count == 1 && matchedMeals.Count == 0)
+            {
+                ScannedItem = matchedItems[0];
+                ScannedItemStock = await db.Stock.Include(x => x.Location).Where(x => x.ItemId == ScannedItem.ItemId).OrderBy(x => x.Location!.Name).ToListAsync();
+            }
+            else if (matchedItems.Count > 0 || matchedMeals.Count > 0)
+            {
+                IsSearchResults = true;
+                matchedItemIds = [.. matchedItems.Select(x => x.ItemId)];
+                matchedMealIds = [.. matchedMeals.Select(x => x.MealId)];
+            }
+        }
+
+        /// <summary>
+        /// Checks whether a row belongs to one of the items or meals matched by the name search.
+        /// </summary>
+        /// <param name="row">The row to check.</param>
+        private bool IsSearchMatch(IInventoryRow row)
+        {
+            return row switch
+            {
+                StockRow stockRow => matchedItemIds.Contains(stockRow.Stock.ItemId),
+                MealRow mealRow => matchedMealIds.Contains(mealRow.Meal.MealId),
+                _ => false,
+            };
         }
     }
 }
