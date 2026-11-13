@@ -21,7 +21,7 @@
 }
 else
 {
-    <table class="table table-cards">
+    <table class="table table-cards table-cards-list">
         <thead>
             <tr>
                 <th>Item</th>
@@ -37,7 +37,7 @@ else
                         @item.DisplayName
                         @if (item.IsAutoAdded)
                         {
-                            <span class="tile tile-orange ms-1">Low</span>
+                            <span class="auto-dot ms-1" title="Added automatically for low stock" aria-label="Added automatically for low stock"></span>
                         }
                     </td>
                     <td data-label="In Stock">@(item.TypeId is null ? "—" : Model.UnopenedByType.GetValueOrDefault(item.TypeId.Value).ToString())</td>

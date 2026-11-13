@@ -250,6 +250,16 @@ button.btn-icon {
     color: #fff;
 }
 
+/* Small dot marking shopping list entries that were added automatically for low stock. */
+.auto-dot {
+    display: inline-block;
+    width: .5rem;
+    height: .5rem;
+    border-radius: 50%;
+    background-color: #d97a00;
+    vertical-align: middle;
+}
+
 /* Horizontal form rows: a fixed-width label on the left, the input filling the rest on the right. */
 .form-row {
     display: flex;
@@ -488,5 +498,31 @@ button.btn-icon {
     .table-cards-grid .btn-icon {
         width: 2.25rem;
         height: 2.25rem;
+    }
+
+    /* Shopping list cards: name on the left, tick button on the right; stock is hidden on mobile. */
+    .table-cards-list tbody tr {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        column-gap: .75rem;
+        align-items: center;
+    }
+
+    .table-cards-list tbody td.cell-heading {
+        grid-column: 1;
+        grid-row: 1;
+        padding-bottom: 0;
+    }
+
+    .table-cards-list tbody td[data-label] {
+        display: none;
+    }
+
+    .table-cards-list tbody td.action-cell {
+        grid-column: 2;
+        grid-row: 1;
+        align-self: center;
+        margin: 0;
+        padding: 0;
     }
 }
