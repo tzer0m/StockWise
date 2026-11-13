@@ -23,6 +23,7 @@ else
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Min Quantity</th>
                 <th></th>
             </tr>
         </thead>
@@ -31,6 +32,7 @@ else
             {
                 <tr>
                     <td class="cell-heading">@type.Name</td>
+                    <td data-label="Min Quantity">@(type.MinQuantity?.ToString() ?? "—")</td>
                     <td class="action-cell">
                         <a asp-page="Edit" asp-route-id="@type.TypeId" class="btn-icon" title="Edit" aria-label="Edit"><partial name="_Icon" model="@("pencil")" /></a>
                         @if (!Model.TypeIdsInUse.Contains(type.TypeId))

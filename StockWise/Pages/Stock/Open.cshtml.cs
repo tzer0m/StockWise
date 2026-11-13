@@ -13,7 +13,8 @@ namespace StockWise.Pages.Stock
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="historyService">The history service.</param>
-    public class OpenModel(StockWiseDbContext db, HistoryService historyService) : PageModel
+    /// <param name="shoppingListService">The shopping list service.</param>
+    public class OpenModel(StockWiseDbContext db, HistoryService historyService, ShoppingListService shoppingListService) : PageModel
     {
         /// <summary>
         /// The stock row being opened.
@@ -94,6 +95,7 @@ namespace StockWise.Pages.Stock
 
             Location? newLocation = await db.Locations.FindAsync(LocationId);
             await historyService.LogStockOpenedAsync(ItemTitle, newLocation?.Name ?? string.Empty);
+            await shoppingListService.CheckLowStockForItemAsync(Stock.ItemId);
             return RedirectToPage("/Index");
         }
 

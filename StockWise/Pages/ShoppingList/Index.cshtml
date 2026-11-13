@@ -1,0 +1,53 @@
+@page
+@model StockWise.Pages.ShoppingList.IndexModel
+@{
+    ViewData["Title"] = "Shopping List";
+}
+
+<form method="post" asp-page-handler="Add" class="d-flex gap-2 mb-4">
+    <input asp-for="NewItemName" class="form-control flex-grow-1" list="type-names" autocapitalize="sentences" autocomplete="off" placeholder="Add a type or anything else" data-autofocus />
+    <datalist id="type-names">
+        @foreach (string typeName in Model.TypeNames)
+        {
+            <option value="@typeName"></option>
+        }
+    </datalist>
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>
+
+@if (Model.Items.Count == 0)
+{
+    <p>Nothing on the list.</p>
+}
+else
+{
+    <table class="table table-cards">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>In Stock</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (StockWise.Models.ShoppingListItem item in Model.Items)
+            {
+                <tr>
+                    <td class="cell-heading">
+                        @item.DisplayName
+                        @if (item.IsAutoAdded)
+                        {
+                            <span class="tile tile-orange ms-1">Low</span>
+                        }
+                    </td>
+                    <td data-label="In Stock">@(item.TypeId is null ? "—" : Model.UnopenedByType.GetValueOrDefault(item.TypeId.Value).ToString())</td>
+                    <td class="action-cell">
+                        <form method="post" asp-page-handler="Remove" asp-route-id="@item.ShoppingListItemId" class="d-inline">
+                            <button type="submit" class="btn-icon" title="Tick off" aria-label="Tick off"><partial name="_Icon" model="@("check2-circle")" /></button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

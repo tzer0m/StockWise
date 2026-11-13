@@ -14,6 +14,7 @@ builder.Services.AddDbContext<StockWiseDbContext>(options => options.UseNpgsql(b
 builder.Services.AddScoped<HistoryService>();
 builder.Services.AddScoped<ItemService>();
 builder.Services.AddScoped<StockService>();
+builder.Services.AddScoped<ShoppingListService>();
 builder.Services.AddScoped<MealService>();
 builder.Services.AddScoped<WidgetService>();
 builder.Services.AddHttpClient<ChitterClient>(client =>

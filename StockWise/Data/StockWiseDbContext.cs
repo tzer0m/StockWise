@@ -55,6 +55,11 @@ namespace StockWise.Data
         public DbSet<History> History => Set<History>();
 
         /// <summary>
+        /// Shopping list entries.
+        /// </summary>
+        public DbSet<ShoppingListItem> ShoppingListItems => Set<ShoppingListItem>();
+
+        /// <summary>
         /// Configures entity relationships and keys beyond what conventions infer.
         /// </summary>
         /// <param name="modelBuilder">The model builder.</param>
@@ -68,6 +73,9 @@ namespace StockWise.Data
 
             // ItemStorageCategories has a composite primary key rather than a single Id column.
             modelBuilder.Entity<ItemStorageCategory>().HasKey(x => new { x.ItemId, x.CategoryId });
+
+            // Deleting a type removes its shopping list entries rather than being blocked by them.
+            modelBuilder.Entity<ShoppingListItem>().HasOne(x => x.Type).WithMany().HasForeignKey(x => x.TypeId).OnDelete(DeleteBehavior.Cascade);
 
             // Add default storage categories.
             modelBuilder.Entity<StorageCategory>().HasData(

@@ -9,10 +9,11 @@ namespace StockWise.Services
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="historyService">The history service.</param>
-    public class StockService(StockWiseDbContext db, HistoryService historyService)
+    /// <param name="shoppingListService">The shopping list service.</param>
+    public class StockService(StockWiseDbContext db, HistoryService historyService, ShoppingListService shoppingListService)
     {
         /// <summary>
-        /// Adds stock for an item at a location, merging into a matching existing unopened row if one exists.
+        /// Adds stock for an item at a location, merging into a matching existing unopened row if one exists, and clears its type from the shopping list.
         /// </summary>
         /// <param name="itemId">The ID of the item to add stock for.</param>
         /// <param name="locationId">The location to add stock at.</param>
@@ -31,6 +32,7 @@ namespace StockWise.Services
             }
 
             await db.SaveChangesAsync();
+            await shoppingListService.ClearRestockedItemAsync(itemId);
 
             Item? item = await db.Items.FindAsync(itemId);
             Location? location = await db.Locations.FindAsync(locationId);

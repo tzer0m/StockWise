@@ -11,7 +11,8 @@ namespace StockWise.Pages.Manage.Types
     /// </summary>
     /// <param name="db">The database context.</param>
     /// <param name="historyService">The history service.</param>
-    public class AddModel(StockWiseDbContext db, HistoryService historyService) : PageModel
+    /// <param name="shoppingListService">The shopping list service.</param>
+    public class AddModel(StockWiseDbContext db, HistoryService historyService, ShoppingListService shoppingListService) : PageModel
     {
         /// <summary>
         /// The new type.
@@ -32,6 +33,7 @@ namespace StockWise.Pages.Manage.Types
             db.Types.Add(Type);
             await db.SaveChangesAsync();
             await historyService.LogTypeAddedAsync(Type.Name);
+            await shoppingListService.CheckLowStockForTypeAsync(Type.TypeId);
             return RedirectToPage("Index");
         }
     }

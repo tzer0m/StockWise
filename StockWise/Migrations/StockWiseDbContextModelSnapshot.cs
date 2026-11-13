@@ -17,7 +17,7 @@ namespace StockWise.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -111,6 +111,9 @@ namespace StockWise.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TypeId"));
+
+                    b.Property<int?>("MinQuantity")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -235,6 +238,33 @@ namespace StockWise.Migrations
                     b.HasIndex("MealId");
 
                     b.ToTable("MealInstances");
+                });
+
+            modelBuilder.Entity("StockWise.Models.ShoppingListItem", b =>
+                {
+                    b.Property<int>("ShoppingListItemId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ShoppingListItemId"));
+
+                    b.Property<DateTime>("AddedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsAutoAdded")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("TypeId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ShoppingListItemId");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("ShoppingListItems");
                 });
 
             modelBuilder.Entity("StockWise.Models.Stock", b =>
@@ -368,6 +398,16 @@ namespace StockWise.Migrations
                         .IsRequired();
 
                     b.Navigation("Meal");
+                });
+
+            modelBuilder.Entity("StockWise.Models.ShoppingListItem", b =>
+                {
+                    b.HasOne("StockWise.Models.ItemType", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("StockWise.Models.Stock", b =>

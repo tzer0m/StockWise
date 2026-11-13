@@ -19,6 +19,12 @@ namespace StockWise.Models
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
+        /// The unopened stock level, across all items of this type, at or below which the type is added to the shopping list. Null means never.
+        /// </summary>
+        [Range(0, int.MaxValue, ErrorMessage = "Minimum quantity can't be negative.")]
+        public int? MinQuantity { get; set; }
+
+        /// <summary>
         /// The items assigned to this type.
         /// </summary>
         public List<Item> Items { get; set; } = [];

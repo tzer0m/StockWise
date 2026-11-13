@@ -13,5 +13,12 @@
             <span asp-validation-for="Type.Name" class="field-validation-error"></span>
         </div>
     </div>
+    <div class="form-row">
+        <label asp-for="Type.MinQuantity" class="form-label">Min Quantity</label>
+        <div class="form-row-control">
+            <input asp-for="Type.MinQuantity" type="number" min="0" class="form-control" placeholder="Never add to shopping list" />
+            <span asp-validation-for="Type.MinQuantity" class="field-validation-error"></span>
+        </div>
+    </div>
     <button type="submit" class="btn btn-primary">Save</button>
 </form>

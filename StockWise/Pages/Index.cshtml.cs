@@ -15,7 +15,8 @@ namespace StockWise.Pages
     /// <param name="db">The database context.</param>
     /// <param name="mealService">The meal service.</param>
     /// <param name="historyService">The history service.</param>
-    public class IndexModel(StockWiseDbContext db, MealService mealService, HistoryService historyService) : PageModel
+    /// <param name="shoppingListService">The shopping list service.</param>
+    public class IndexModel(StockWiseDbContext db, MealService mealService, HistoryService historyService, ShoppingListService shoppingListService) : PageModel
     {
         /// <summary>
         /// All current stock and meal rows, sorted together.
@@ -127,6 +128,7 @@ namespace StockWise.Pages
 
                 await db.SaveChangesAsync();
                 await historyService.LogStockCheckedOutAsync(stock.Item!.Name, 1, stock.Location!.Name);
+                await shoppingListService.CheckLowStockForItemAsync(stock.ItemId);
             }
 
             return Redirect(BuildIndexUrl(includeBarcode: true));
@@ -151,6 +153,7 @@ namespace StockWise.Pages
 
                 await db.SaveChangesAsync();
                 await historyService.LogStockCheckedOutAsync(stock.Item!.Name, checkedOut, stock.Location!.Name);
+                await shoppingListService.CheckLowStockForItemAsync(stock.ItemId);
             }
 
             return Redirect(BuildIndexUrl(includeBarcode: true));
