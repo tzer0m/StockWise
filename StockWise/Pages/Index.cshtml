@@ -175,17 +175,6 @@
     }
 }
 
-@if (Model.AvailableTypeNames.Count > 0)
-{
-    <div class="filter-bar mb-3">
-        <a href="@Model.BuildFilterUrl(null)" class="filter-btn @(Model.Types.Count == 0 ? "filter-btn-active" : "")">Reset</a>
-        @foreach (string typeName in Model.AvailableTypeNames)
-        {
-            <a href="@Model.BuildFilterUrl(typeName)" class="filter-btn @(Model.Types.Contains(typeName) ? "filter-btn-active" : "")">@typeName</a>
-        }
-    </div>
-}
-
 @if (Model.AllRows.Count == 0)
 {
     <p>@(Model.IsSearchResults ? "No stock currently held for the matching items." : "No stock currently held.")</p>
