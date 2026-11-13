@@ -1,3 +1,5 @@
+using System.Globalization;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
@@ -272,15 +274,26 @@ namespace StockWise.Pages
         }
 
         /// <summary>
-        /// Formats the number of days until expiry as a short display string.
+        /// Formats the time until expiry in bold followed by the short date, e.g. "1d - 21/11".
         /// </summary>
         /// <param name="daysUntilExpiry">The number of days until expiry.</param>
-        public static string FormatDaysUntilExpiry(int? daysUntilExpiry)
+        /// <param name="expiry">The expiry date.</param>
+        public static HtmlString FormatDaysUntilExpiry(int? daysUntilExpiry, DateOnly? expiry)
         {
-            if (daysUntilExpiry is null)
+            if (daysUntilExpiry is null || expiry is null)
             {
-                return "—";
+                return new HtmlString("—");
             }
+
+            return new HtmlString($"<strong>{FormatTimeUntilExpiry(daysUntilExpiry.Value)}</strong> ({expiry.Value.ToString("dd/MM", CultureInfo.InvariantCulture)})");
+        }
+
+        /// <summary>
+        /// Formats the number of days until expiry as a short relative string, e.g. "1d" or "2.5w".
+        /// </summary>
+        /// <param name="daysUntilExpiry">The number of days until expiry.</param>
+        private static string FormatTimeUntilExpiry(int daysUntilExpiry)
+        {
 
             if (daysUntilExpiry == 0)
             {
@@ -297,19 +310,19 @@ namespace StockWise.Pages
                 return $"{daysUntilExpiry}d";
             }
 
-            double weeks = daysUntilExpiry.Value / 7.0;
+            double weeks = daysUntilExpiry / 7.0;
             if (weeks <= 4)
             {
                 return $"{weeks:0.#}w";
             }
 
-            double months = daysUntilExpiry.Value / 30.44;
+            double months = daysUntilExpiry / 30.44;
             if (months <= 12)
             {
                 return $"{months:0.#}mo";
             }
 
-            double years = daysUntilExpiry.Value / 365.25;
+            double years = daysUntilExpiry / 365.25;
             return $"{years:0.#}y";
         }
 

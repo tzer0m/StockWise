@@ -241,13 +241,13 @@ button.btn-icon {
 }
 
 .tile-orange {
-    background-color: #f5a524;
-    color: #1c1b1a;
+    background-color: #d97a00;
+    color: #fff;
 }
 
 .tile-green {
-    background-color: #43a047;
-    color: #1c1b1a;
+    background-color: #2e7d32;
+    color: #fff;
 }
 
 /* Horizontal form rows: a fixed-width label on the left, the input filling the rest on the right. */
@@ -340,30 +340,8 @@ button.btn-icon {
         width: 100%;
     }
 
+    /* Column headers (and their sort links) are hidden on mobile, since the card layout has no columns to sort. */
     .table-cards thead {
-        display: block;
-    }
-
-    .table-cards thead tr {
-        display: flex;
-        flex-wrap: wrap;
-        gap: .35rem;
-        margin-bottom: .75rem;
-        border: none;
-    }
-
-    .table-cards thead th {
-        display: inline-block;
-        width: auto;
-        padding: .25rem .5rem;
-        background-color: var(--sw-surface-raised);
-        border: none;
-        border-radius: .25rem;
-        font-size: .8rem;
-        white-space: nowrap;
-    }
-
-    .table-cards thead th:empty {
         display: none;
     }
 
@@ -436,27 +414,20 @@ button.btn-icon {
         height: 18px;
     }
 
-    /* Compact 2-column card grid, values only (no field labels), used for the home page's all-stock table. */
-    .table-cards-grid thead tr {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-    }
-
-    .table-cards-grid thead th {
-        text-align: center;
-        padding: .25rem .3rem;
-        font-size: .75rem;
-        white-space: normal;
-    }
-
+    /* Compact 3-row card grid, values only (no field labels), used for the home page's all-stock table:
+       name | quantity, then type | location, then expiry, opened | actions. The flexible third column lets the actions borrow width without squeezing the name. */
     .table-cards-grid tbody tr {
         display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: .3rem .75rem;
+        grid-template-columns: auto auto 1fr auto;
+        align-items: center;
+        gap: .2rem .6rem;
+        margin-bottom: .5rem;
+        padding: .45rem .65rem;
     }
 
     .table-cards-grid tbody td[data-label] {
         display: block;
+        padding: 0;
     }
 
     .table-cards-grid tbody td[data-label]::before {
@@ -469,15 +440,27 @@ button.btn-icon {
     }
 
     .table-cards-grid tbody td.cell-heading {
-        grid-column: 1;
+        grid-column: 1 / 4;
         grid-row: 1;
-        padding-bottom: 0;
+        padding: 0;
+    }
+
+    .table-cards-grid tbody td[data-label="Quantity"] {
+        grid-column: 4;
+        grid-row: 1;
+        text-align: right;
     }
 
     .table-cards-grid tbody td[data-label="Type"] {
-        grid-column: 1;
+        grid-column: 1 / 3;
         grid-row: 2;
         text-align: left;
+    }
+
+    .table-cards-grid tbody td[data-label="Location"] {
+        grid-column: 3 / 5;
+        grid-row: 2;
+        text-align: right;
     }
 
     .table-cards-grid tbody td[data-label="Expiry"] {
@@ -486,30 +469,24 @@ button.btn-icon {
         text-align: left;
     }
 
-    .table-cards-grid tbody td[data-label="Quantity"] {
-        grid-column: 2;
-        grid-row: 1;
-        text-align: right;
-    }
-
-    .table-cards-grid tbody td[data-label="Location"] {
-        grid-column: 2;
-        grid-row: 2;
-        text-align: right;
-    }
-
     .table-cards-grid tbody td[data-label="Opened"] {
         grid-column: 2;
         grid-row: 3;
-        text-align: right;
+        text-align: left;
     }
 
     .table-cards-grid tbody td.action-cell {
-        grid-column: 1 / -1;
-        grid-row: 4;
+        grid-column: 3 / 5;
+        grid-row: 3;
         display: flex;
-        gap: .4rem;
-        margin-top: .4rem;
+        justify-content: flex-end;
+        gap: .3rem;
+        margin: 0;
         padding: 0;
+    }
+
+    .table-cards-grid .btn-icon {
+        width: 2.25rem;
+        height: 2.25rem;
     }
 }
