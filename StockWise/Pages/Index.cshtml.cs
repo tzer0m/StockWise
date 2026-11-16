@@ -360,7 +360,7 @@ namespace StockWise.Pages
             // Not a known barcode, so search stocked items and meals by name: a single item match shows its card as if scanned, anything else filters the main table.
             string searchText = Barcode.Trim();
             List<Item> matchedItems = [.. stockList.Select(x => x.Item).OfType<Item>().DistinctBy(x => x.ItemId).Where(x => ItemService.MatchesSearch(x, searchText))];
-            List<Meal> matchedMeals = [.. meals.Where(x => ItemService.MatchesSearch(x.Name, searchText))];
+            List<Meal> matchedMeals = [.. meals.Where(x => ItemService.MatchesSearch($"{x.Name} Meals", searchText))];
             if (matchedItems.Count == 1 && matchedMeals.Count == 0)
             {
                 ScannedItem = matchedItems[0];

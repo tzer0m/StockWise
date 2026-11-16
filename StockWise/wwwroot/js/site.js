@@ -274,7 +274,7 @@ document.addEventListener('DOMContentLoaded', function () {
         target.focus();
     });
 });
-// Search bars marked [data-live-search]: filters the page's [data-search] rows as you type, matching every word against the row's brand and name in any order. Skips all-digit text (a barcode being scanned) and quick-action codes, which are only handled on Enter.
+// Search bars marked [data-live-search]: filters the page's [data-search] rows as you type, matching every word against the row's brand, name and type in any order. Skips all-digit text (a barcode being scanned) and quick-action codes, which are only handled on Enter.
 document.addEventListener('DOMContentLoaded', function () {
     var input = document.querySelector('[data-live-search]');
     var rows = document.querySelectorAll('[data-search]');

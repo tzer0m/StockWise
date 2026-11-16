@@ -31,13 +31,13 @@ namespace StockWise.Services
         }
 
         /// <summary>
-        /// Checks whether an item's brand and name contain all the words in the search text, ignoring case and word order.
+        /// Checks whether an item's brand, name and type contain all the words in the search text, ignoring case and word order.
         /// </summary>
         /// <param name="item">The item to check.</param>
         /// <param name="searchText">The text to search for.</param>
         public static bool MatchesSearch(Item item, string searchText)
         {
-            return MatchesSearch($"{item.Brand} {item.Name}", searchText);
+            return MatchesSearch($"{item.Brand} {item.Name} {item.Type?.Name}", searchText);
         }
 
         /// <summary>
